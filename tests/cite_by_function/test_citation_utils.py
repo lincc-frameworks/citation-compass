@@ -1,5 +1,4 @@
 import pytest
-
 from cite_by_function.citation_utils import (
     citation,
     get_all_citations,
