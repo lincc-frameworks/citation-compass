@@ -1,8 +1,10 @@
 import pytest
+
 from cite_by_function.citation_utils import (
     citation,
     get_all_citations,
     get_used_citations,
+    reset_used_citations,
 )
 
 
@@ -78,3 +80,8 @@ def test_citations_used():
     assert "function_citation_1: test_citation_utils.example_function_1" in citations
     assert "function_citation_x: test_citation_utils.example_function_x" in citations
     assert "import: sys" in citations
+
+    # We can reset the list of used citation functions.
+    reset_used_citations()
+    citations = get_used_citations(include_imports=False)
+    assert len(citations) == 0

@@ -104,3 +104,8 @@ def get_used_citations(include_imports=False):
             citations.append(f"import: {m}")
 
     return citations
+
+
+def reset_used_citations():
+    """Reset the list of used citations."""
+    CITATION_REGISTRY_USED.clear()
