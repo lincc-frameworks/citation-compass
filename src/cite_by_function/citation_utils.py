@@ -112,13 +112,35 @@ def reset_used_citations():
     CITATION_REGISTRY_USED.clear()
 
 
-def get_all_imports():
+def get_all_imports(skip_common=True):
     """Return a list of all imports in the software package.
+
+    Parameters
+    ----------
+    skip_common : bool
+        Whether to skip the common imports, such as the built-in modules.
 
     Returns
     -------
     imports : list of str
         A list of all imports in the software package.
     """
-    # TODO: Add reasonable filtering to remove common modules.
-    return list(sys.modules.keys())
+    imports = []
+    for name, module in sys.modules.items():
+        skip = False
+        if name == "__main__":
+            # Skip the main module
+            skip = True
+        elif module.__spec__ is not None:
+            # Skip the built-in modules or ones from the python framework.
+            origin = module.__spec__.origin
+            if origin == "built-in":
+                skip = True
+            if origin == "frozen":
+                skip = True
+            if "Python.framework" in origin:
+                skip = True
+
+        if not skip_common or not skip:
+            imports.append(name)
+    return imports
