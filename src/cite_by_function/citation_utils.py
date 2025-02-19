@@ -3,18 +3,54 @@
 import sys
 
 CITATION_REGISTRY_ALL = {}
-CITATION_REGISTRY_USED = {}
+CITATION_REGISTRY_USED = set()
 
 
-def citation(reference):
+class CitationEntry:
+    """A (data)class to store information about a citation.
+
+    Attributes
+    ----------
+    function_name : str
+        The name of the module and function where the citation is needed.
+    citation : str, optional
+        The citation string.
+    docstring : str, optional
+        The docstring of the function.
+    label : str, optional
+        The (optional) user-defined label for the citation.
+    """
+
+    def __init__(self, function_name, docstring=None, label=None):
+        self.function_name = function_name
+        self.docstring = docstring
+        self.label = label
+
+        if label is not None and len(label) > 0:
+            self.citation = label
+        elif docstring is not None and len(docstring) > 0:
+            # TODO: Parse the docstring for the actual citation.
+            self.citation = docstring
+        else:
+            self.citation = "No citation provided."
+
+    def __hash__(self):
+        return hash(self.function_name)
+
+    def __str__(self):
+        return f"{self.function_name}: {self.citation}"
+
+    def __repr__(self):
+        return f"{self.function_name}:\n{self.citation}"
+
+
+def citation(label=None):
     """A function wrapper for adding a citation to a function.
 
     Parameters
     ----------
-    func : function
-        The function to wrap.
-    reference : str
-        A unique reference for this citation.
+    label : str
+        The (optional) user-defined label for the citation.
 
     Returns
     -------
@@ -24,26 +60,56 @@ def citation(reference):
 
     def decorator(func):
         def fun_wrapper(*args, **kwargs):
-            print(f"Calling {func.__module__}.{func.__name__} with citation {reference}")
-
             # Save the citation as USED when it is first called.
-            if reference not in CITATION_REGISTRY_USED:
-                cite_str = f"{reference}: {func.__module__}.{func.__name__}"
-                CITATION_REGISTRY_USED[reference] = cite_str
+            if func.__qualname__ not in CITATION_REGISTRY_USED:
+                CITATION_REGISTRY_USED.add(func.__qualname__)
             return func(*args, **kwargs)
 
         # Save the citation as ALL when it is first defined.
-        cite_str = f"{reference}: {func.__module__}.{func.__name__}"
-        if reference not in CITATION_REGISTRY_ALL:
-            CITATION_REGISTRY_ALL[reference] = cite_str
-        elif CITATION_REGISTRY_ALL[reference] != cite_str:
-            raise ValueError(
-                f"Duplicate citation reference '{reference}' for function "
-                f"{cite_str}. Previously used for {CITATION_REGISTRY_ALL[reference]}."
+        if func.__qualname__ not in CITATION_REGISTRY_ALL:
+            citation = CitationEntry(
+                function_name=func.__qualname__,
+                docstring=func.__doc__,
+                label=label,
             )
+
+            CITATION_REGISTRY_ALL[func.__qualname__] = citation
         return fun_wrapper
 
     return decorator
+
+
+def get_all_citations():
+    """Return a list of all citations in the software package.
+
+    Returns
+    -------
+    citations : list of str
+        A list of all citations in the software package.
+    """
+    citations = []
+    for entry in CITATION_REGISTRY_ALL.values():
+        citations.append(str(entry))
+    return citations
+
+
+def get_used_citations():
+    """Return a list of all citations in the software package.
+
+    Returns
+    -------
+    list of str
+        A list of all citations in the software package.
+    """
+    citations = []
+    for func_name in CITATION_REGISTRY_USED:
+        citations.append(str(CITATION_REGISTRY_ALL[func_name]))
+    return citations
+
+
+def reset_used_citations():
+    """Reset the list of used citations."""
+    CITATION_REGISTRY_USED.clear()
 
 
 def get_all_imports():
@@ -54,58 +120,5 @@ def get_all_imports():
     imports : list of str
         A list of all imports in the software package.
     """
-    imports = []
-    for m in sys.modules:
-        imports.append(str(m))
-    return imports
-
-
-def get_all_citations(include_imports=False):
-    """Return a list of all citations in the software package.
-
-    Parameters
-    ----------
-    include_imports : bool, optional
-        Whether to include the import citations in the list.
-        Default: True
-
-    Returns
-    -------
-    citations : list of str
-        A list of all citations in the software package.
-    """
-    citations = list(CITATION_REGISTRY_ALL.values())
-
-    if include_imports:
-        for m in get_all_imports():
-            citations.append(f"import: {m}")
-
-    return citations
-
-
-def get_used_citations(include_imports=False):
-    """Return a list of all citations in the software package.
-
-    Parameters
-    ----------
-    include_imports : bool, optional
-        Whether to include the import citations in the list.
-        Default: True
-
-    Returns
-    -------
-    list of str
-        A list of all citations in the software package.
-    """
-    citations = list(CITATION_REGISTRY_USED.values())
-
-    if include_imports:
-        for m in get_all_imports():
-            citations.append(f"import: {m}")
-
-    return citations
-
-
-def reset_used_citations():
-    """Reset the list of used citations."""
-    CITATION_REGISTRY_USED.clear()
+    # TODO: Add reasonable filtering to remove common modules.
+    return list(sys.modules.keys())

@@ -24,25 +24,20 @@ This will add an entry mapping the citation name ("lincc_frameworks_paper_2025")
 citation_list = get_all_citations()
 ```
 
-or
-
-```
-citation_list = get_all_citations(include_imports=True)
-```
-
-where `include_imports=True` indicates that the code should return a list of **all** imported modules as well.
-
 Similarly you can get a list of the citations for only the called functions during a run of the code by using:
 
 ```
 citation_list = get_used_citations()
 ```
 
-or
+Since some packages need to be cited when they are used, you can also call
 
 ```
-citation_list = get_used_citations(include_imports=True)
+import_list = get_all_imports()
 ```
+
+To get a list of all modules that were imported.
+
 
 ## Acknowledgements
 
