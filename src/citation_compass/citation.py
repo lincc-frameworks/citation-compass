@@ -1,11 +1,32 @@
 """A helper module to collect citations from a software package."""
 
+from functools import wraps
+import inspect
+import logging
 import sys
 
 from .docstring_utils import check_docstring_for_keyword, extract_citation
 
 CITATION_REGISTRY_ALL = {}
 CITATION_REGISTRY_USED = set()
+
+
+def _get_full_name(thing):
+    """Return the maximally qualified name of a thing.
+
+    Parameters
+    ----------
+    thing : object
+        The thing to get the name of.
+
+    Returns
+    -------
+    str
+        The fully qualified name of the thing.
+    """
+    module = inspect.getmodule(thing)
+    full_name = f"{module.__name__}.{thing.__qualname__}" if module else thing.__qualname__
+    return full_name
 
 
 class CitationEntry:
@@ -62,8 +83,10 @@ class CitationEntry:
         if citation_text is None:
             citation_text = func.__doc__
 
+        full_name = _get_full_name(func)
+
         return cls(
-            key=func.__qualname__,
+            key=full_name,
             citation=citation_text,
             label=label,
         )
@@ -102,20 +125,32 @@ def cite_function(label=None):
     function
         The wrapped function.
     """
+    # If the label is callable, there were no parentheses on the
+    # dectorator and it passed in the function instead. So use None
+    # as the label.
+    use_label = label if not callable(label) else None
 
     def decorator(func):
+        full_name = _get_full_name(func)
+
+        @wraps(func)
         def fun_wrapper(*args, **kwargs):
             # Save the citation as USED when it is first called.
             if func.__qualname__ not in CITATION_REGISTRY_USED:
-                CITATION_REGISTRY_USED.add(func.__qualname__)
+                CITATION_REGISTRY_USED.add(full_name)
             return func(*args, **kwargs)
 
         # Save the citation as ALL when it is first defined.
-        if func.__qualname__ not in CITATION_REGISTRY_ALL:
-            citation = CitationEntry.from_function(func, label=label)
-            CITATION_REGISTRY_ALL[func.__qualname__] = citation
+        if full_name not in CITATION_REGISTRY_ALL:
+            citation = CitationEntry.from_function(func, label=use_label)
+            CITATION_REGISTRY_ALL[full_name] = citation
+        else:
+            logging.warning(f"Duplicated citation tag for function: {full_name}")
+
         return fun_wrapper
 
+    if callable(label):
+        return decorator(label)
     return decorator
 
 
@@ -127,9 +162,7 @@ def get_all_citations():
     citations : list of str
         A list of all citations in the software package.
     """
-    citations = []
-    for entry in CITATION_REGISTRY_ALL.values():
-        citations.append(str(entry))
+    citations = [str(entry) for entry in CITATION_REGISTRY_ALL.values()]
     return citations
 
 
@@ -141,9 +174,7 @@ def get_used_citations():
     list of str
         A list of all citations in the software package.
     """
-    citations = []
-    for func_name in CITATION_REGISTRY_USED:
-        citations.append(str(CITATION_REGISTRY_ALL[func_name]))
+    citations = [str(CITATION_REGISTRY_ALL[func_name]) for func_name in CITATION_REGISTRY_USED]
     return citations
 
 

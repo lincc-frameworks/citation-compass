@@ -1,4 +1,6 @@
 import fake_module
+
+from citation_compass.citation import _get_full_name
 from citation_compass import (
     cite_function,
     get_all_citations,
@@ -26,14 +28,30 @@ def example_function_x(x):
     return x
 
 
+def test_get_full_name():
+    """Check that the full name is correctly generated."""
+    assert _get_full_name(example_function_1) == "test_citation.example_function_1"
+    assert _get_full_name(_get_full_name) == "citation_compass.citation._get_full_name"
+    assert _get_full_name(fake_module.fake_function) == "fake_module.fake_function"
+
+
 def test_citations_all():
     """Check that all the citations are registered."""
     citations = get_all_citations()
     assert len(citations) == 4
-    assert "example_function_1: function_citation_1" in citations
-    assert "example_function_2: function_citation_2" in citations
-    assert "example_function_x: function_citation_x" in citations
+    assert "test_citation.example_function_1: function_citation_1" in citations
+    assert "test_citation.example_function_2: function_citation_2" in citations
+    assert "test_citation.example_function_x: function_citation_x" in citations
     assert "fake_module: CitationCompass, 2025." in citations
+
+    # Check that we have preserved the name and __doc__ string of the function
+    # through the wrapping process.
+    assert example_function_1.__name__ == "example_function_1"
+    assert example_function_1.__doc__ == "function_citation_1"
+    assert example_function_2.__name__ == "example_function_2"
+    assert example_function_2.__doc__ == "function_citation_2"
+    assert example_function_x.__name__ == "example_function_x"
+    assert example_function_x.__doc__ == "function_citation_x"
 
     # A citation with no docstring, but a label.
     @cite_function("function_citation_3")
@@ -42,10 +60,10 @@ def test_citations_all():
 
     citations = get_all_citations()
     assert len(citations) == 5
-    assert "example_function_1: function_citation_1" in citations
-    assert "example_function_2: function_citation_2" in citations
-    assert "test_citations_all.<locals>.example_function_3: function_citation_3" in citations
-    assert "example_function_x: function_citation_x" in citations
+    assert "test_citation.example_function_1: function_citation_1" in citations
+    assert "test_citation.example_function_2: function_citation_2" in citations
+    assert "test_citation.test_citations_all.<locals>.example_function_3: function_citation_3" in citations
+    assert "test_citation.example_function_x: function_citation_x" in citations
     assert example_function_3() == 3
 
     # We can add a citation without a label.
@@ -55,12 +73,27 @@ def test_citations_all():
 
     citations = get_all_citations()
     assert len(citations) == 6
-    assert "example_function_1: function_citation_1" in citations
-    assert "example_function_2: function_citation_2" in citations
-    assert "test_citations_all.<locals>.example_function_3: function_citation_3" in citations
-    assert "test_citations_all.<locals>.example_function_4: No citation provided." in citations
-    assert "example_function_x: function_citation_x" in citations
+    assert "test_citation.example_function_1: function_citation_1" in citations
+    assert "test_citation.example_function_2: function_citation_2" in citations
+    assert "test_citation.test_citations_all.<locals>.example_function_3: function_citation_3" in citations
+    assert "test_citation.test_citations_all.<locals>.example_function_4: No citation provided." in citations
+    assert "test_citation.example_function_x: function_citation_x" in citations
     assert example_function_4() == 4
+
+    # We can add a citation without parentheses.
+    @cite_function
+    def example_function_5():
+        return 5
+
+    citations = get_all_citations()
+    assert len(citations) == 7
+    assert "test_citation.example_function_1: function_citation_1" in citations
+    assert "test_citation.example_function_2: function_citation_2" in citations
+    assert "test_citation.test_citations_all.<locals>.example_function_3: function_citation_3" in citations
+    assert "test_citation.test_citations_all.<locals>.example_function_4: No citation provided." in citations
+    assert "test_citation.test_citations_all.<locals>.example_function_5: No citation provided." in citations
+    assert "test_citation.example_function_x: function_citation_x" in citations
+    assert example_function_5() == 5
 
 
 def test_citations_used():
@@ -74,20 +107,20 @@ def test_citations_used():
     assert example_function_1() == 1
     citations = get_used_citations()
     assert len(citations) == 1
-    assert "example_function_1: function_citation_1" in citations
+    assert "test_citation.example_function_1: function_citation_1" in citations
 
     assert example_function_x(10) == 10
     citations = get_used_citations()
     assert len(citations) == 2
-    assert "example_function_1: function_citation_1" in citations
-    assert "example_function_x: function_citation_x" in citations
+    assert "test_citation.example_function_1: function_citation_1" in citations
+    assert "test_citation.example_function_x: function_citation_x" in citations
 
     # Reusing a function does not re-add it.
     assert example_function_x(-5) == -5
     citations = get_used_citations()
     assert len(citations) == 2
-    assert "example_function_1: function_citation_1" in citations
-    assert "example_function_x: function_citation_x" in citations
+    assert "test_citation.example_function_1: function_citation_1" in citations
+    assert "test_citation.example_function_x: function_citation_x" in citations
 
     # Creating a new function doesn't mark it as used.
     @cite_function()
@@ -96,8 +129,8 @@ def test_citations_used():
 
     citations = get_used_citations()
     assert len(citations) == 2
-    assert "example_function_1: function_citation_1" in citations
-    assert "example_function_x: function_citation_x" in citations
+    assert "test_citation.example_function_1: function_citation_1" in citations
+    assert "test_citation.example_function_x: function_citation_x" in citations
 
     # Using an uncited function doesn't add it to the list.
     _ = fake_module.fake_function()
