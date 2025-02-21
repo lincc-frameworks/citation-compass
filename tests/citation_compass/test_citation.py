@@ -1,4 +1,4 @@
-
+import fake_module
 from citation_compass import (
     cite_function,
     get_all_citations,
