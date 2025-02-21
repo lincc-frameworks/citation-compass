@@ -131,7 +131,7 @@ def get_all_imports(skip_common=True):
         if name == "__main__":
             # Skip the main module
             skip = True
-        elif module.__spec__ is not None:
+        elif hasattr(module, "__spec__") and module.__spec__ is not None:
             # Skip the built-in modules or ones from the python framework.
             origin = module.__spec__.origin
             if origin == "built-in":

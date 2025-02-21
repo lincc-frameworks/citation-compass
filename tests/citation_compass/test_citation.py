@@ -1,4 +1,4 @@
-from cite_by_function.citation_utils import (
+from citation_compass.citation import (
     citation,
     get_all_citations,
     get_all_imports,
@@ -98,6 +98,6 @@ def test_citations_used():
 
 def test_get_all_imports():
     """Check that the imports are registered."""
-    imports = get_all_imports()
+    imports = get_all_imports(skip_common=False)
     assert len(imports) > 0
     assert "sys" in imports

@@ -1,6 +1,6 @@
 
 [project]
-name = "cite_by_function"
+name = "citation-compass"
 license = {file = "LICENSE"}
 readme = "README.md"
 authors = [
@@ -15,12 +15,12 @@ classifiers = [
     "Programming Language :: Python",
 ]
 dynamic = ["version"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
 ]
 
 [project.urls]
-"Source Code" = "https://github.com/lincc-frameworks/cite_by_function"
+"Source Code" = "https://github.com/lincc-frameworks/citation-compass"
 
 # On a mac, install optional dependencies with `pip install '.[dev]'` (include the single quotes)
 [project.optional-dependencies]
@@ -40,7 +40,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
-write_to = "src/cite_by_function/_version.py"
+write_to = "src/citation_compass/_version.py"
 
 [tool.pytest.ini_options]
 testpaths = [
@@ -49,7 +49,7 @@ testpaths = [
 
 [tool.black]
 line-length = 110
-target-version = ["py39"]
+target-version = ["py310"]
 
 [tool.isort]
 profile = "black"
@@ -57,7 +57,7 @@ line_length = 110
 
 [tool.ruff]
 line-length = 110
-target-version = "py39"
+target-version = "py310"
 
 [tool.ruff.lint]
 select = [
@@ -102,4 +102,4 @@ ignore = [
 ]
 
 [tool.coverage.run]
-omit=["src/cite_by_function/_version.py"]
+omit=["src/citation_compass/_version.py"]

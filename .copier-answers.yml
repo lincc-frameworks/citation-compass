@@ -13,11 +13,11 @@ include_benchmarks: false
 include_docs: true
 include_notebooks: true
 mypy_type_checking: none
-package_name: cite_by_function
+package_name: citation_compass
 project_license: MIT
-project_name: cite_by_function
+project_name: citation-compass
 project_organization: lincc-frameworks
 python_versions:
-- '3.9'
 - '3.10'
 - '3.11'
+- '3.12'
