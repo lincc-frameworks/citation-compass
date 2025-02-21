@@ -1,6 +1,11 @@
+"""Fake module for testing.
+
+Citation: CitationCompass, 2025.
+"""
+
 from citation_compass import cite_module
 
-cite_module("fake_module", "Fake module citation.")
+cite_module("fake_module")
 
 
 def fake_function():

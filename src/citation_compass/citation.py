@@ -2,6 +2,8 @@
 
 import sys
 
+from .docstring_utils import check_docstring_for_keyword, extract_citation
+
 CITATION_REGISTRY_ALL = {}
 CITATION_REGISTRY_USED = set()
 
@@ -55,24 +57,34 @@ class CitationEntry:
         CitationEntry
             The citation entry.
         """
-        # TODO: Parse the docstring to see if it has a specific citation.
+        # Try to parse a citation from the
+        citation_text = extract_citation(func.__doc__)
+        if citation_text is None:
+            citation_text = func.__doc__
+
         return cls(
             key=func.__qualname__,
-            citation=func.__doc__,
+            citation=citation_text,
             label=label,
         )
 
 
-def cite_module(name, citation):
+def cite_module(name, citation=None):
     """Add a citation to a entire module.
 
     Parameters
     ----------
     name : str
         The name of the module.
-    citation : str
-        The citation string.
+    citation : str, optional
+        The citation string. If None the code automatically tries to extract the citation text
+        from the module's docstring.
     """
+    if citation is None and name in sys.modules:
+        module = sys.modules[name]
+        if hasattr(module, "__doc__"):
+            citation = extract_citation(module.__doc__)
+
     CITATION_REGISTRY_ALL[name] = CitationEntry(name, citation)
     CITATION_REGISTRY_USED.add(name)
 
@@ -140,13 +152,15 @@ def reset_used_citations():
     CITATION_REGISTRY_USED.clear()
 
 
-def get_all_imports(skip_common=True):
+def get_all_imports(skip_common=True, use_keywords=False):
     """Return a list of all imports in the software package.
 
     Parameters
     ----------
     skip_common : bool
         Whether to skip the common imports, such as the built-in modules.
+    use_keywords : bool
+        Check the import's docstring for keywords that indicate a citation.
 
     Returns
     -------
@@ -162,13 +176,19 @@ def get_all_imports(skip_common=True):
         elif hasattr(module, "__spec__") and module.__spec__ is not None:
             # Skip the built-in modules or ones from the python framework.
             origin = module.__spec__.origin
-            if origin == "built-in":
+            if origin is None:
+                skip = False
+            elif origin == "built-in":
                 skip = True
-            if origin == "frozen":
+            elif origin == "frozen":
                 skip = True
-            if "Python.framework" in origin:
+            elif "Python.framework" in origin:
                 skip = True
 
         if not skip_common or not skip:
-            imports.append(name)
+            if use_keywords and hasattr(module, "__doc__"):
+                if check_docstring_for_keyword(module.__doc__):
+                    imports.append(name)
+            else:
+                imports.append(name)
     return imports

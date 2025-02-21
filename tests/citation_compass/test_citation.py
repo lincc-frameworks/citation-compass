@@ -33,7 +33,7 @@ def test_citations_all():
     assert "example_function_1: function_citation_1" in citations
     assert "example_function_2: function_citation_2" in citations
     assert "example_function_x: function_citation_x" in citations
-    assert "fake_module: Fake module citation." in citations
+    assert "fake_module: CitationCompass, 2025." in citations
 
     # A citation with no docstring, but a label.
     @cite_function("function_citation_3")
@@ -99,6 +99,11 @@ def test_citations_used():
     assert "example_function_1: function_citation_1" in citations
     assert "example_function_x: function_citation_x" in citations
 
+    # Using an uncited function doesn't add it to the list.
+    _ = fake_module.fake_function()
+    citations = get_used_citations()
+    assert len(citations) == 2
+
     # We can reset the list of used citation functions.
     reset_used_citations()
     assert len(get_used_citations()) == 0
@@ -109,8 +114,17 @@ def test_get_all_imports():
     imports = get_all_imports(skip_common=False)
     assert len(imports) > 0
     assert "sys" in imports
+    assert "fake_module" in imports
 
     # We can filter out Python's base imports.
     imports = get_all_imports(skip_common=True)
     assert len(imports) > 0
     assert "sys" not in imports
+    assert "fake_module" in imports
+
+    # We can search for citation keywords in the module docstrings.
+    old_len = len(imports)
+    imports = get_all_imports(skip_common=True, use_keywords=True)
+    assert len(imports) > 0
+    assert len(imports) < old_len
+    assert "fake_module" in imports
