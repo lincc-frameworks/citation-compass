@@ -1,5 +1,6 @@
-from citation_compass.citation import (
-    citation,
+
+from citation_compass import (
+    cite_function,
     get_all_citations,
     get_all_imports,
     get_used_citations,
@@ -7,60 +8,57 @@ from citation_compass.citation import (
 )
 
 
-@citation("function_citation_1")
+@cite_function()
 def example_function_1():
-    """Test function that returns 1."""
+    """function_citation_1"""
     return 1
 
 
-@citation("function_citation_2")
+@cite_function()
 def example_function_2():
-    """Test function that returns 2."""
+    """function_citation_2"""
     return 2
 
 
-@citation("function_citation_x")
+@cite_function()
 def example_function_x(x):
-    """Test function that returns the input value."""
+    """function_citation_x"""
     return x
 
 
 def test_citations_all():
     """Check that all the citations are registered."""
     citations = get_all_citations()
-    assert len(citations) == 3
-    assert "example_function_1: function_citation_1" in citations
-    assert "example_function_2: function_citation_2" in citations
-    assert "example_function_x: function_citation_x" in citations
-
-
-def test_citations_new():
-    """Check that new citations are registered."""
-
-    @citation("function_citation_3")
-    def example_function_3():
-        return 3
-
-    citations = get_all_citations()
-    print(citations)
     assert len(citations) == 4
     assert "example_function_1: function_citation_1" in citations
     assert "example_function_2: function_citation_2" in citations
-    assert "test_citations_new.<locals>.example_function_3: function_citation_3" in citations
     assert "example_function_x: function_citation_x" in citations
-    assert example_function_3() == 3
+    assert "fake_module: Fake module citation." in citations
 
-    # We can add a citation without a label.
-    @citation()
-    def example_function_4():
-        return 4
+    # A citation with no docstring, but a label.
+    @cite_function("function_citation_3")
+    def example_function_3():
+        return 3
 
     citations = get_all_citations()
     assert len(citations) == 5
     assert "example_function_1: function_citation_1" in citations
     assert "example_function_2: function_citation_2" in citations
-    assert "test_citations_new.<locals>.example_function_3: function_citation_3" in citations
-    assert "test_citations_new.<locals>.example_function_4: No citation provided." in citations
+    assert "test_citations_all.<locals>.example_function_3: function_citation_3" in citations
+    assert "example_function_x: function_citation_x" in citations
+    assert example_function_3() == 3
+
+    # We can add a citation without a label.
+    @cite_function()
+    def example_function_4():
+        return 4
+
+    citations = get_all_citations()
+    assert len(citations) == 6
+    assert "example_function_1: function_citation_1" in citations
+    assert "example_function_2: function_citation_2" in citations
+    assert "test_citations_all.<locals>.example_function_3: function_citation_3" in citations
+    assert "test_citations_all.<locals>.example_function_4: No citation provided." in citations
     assert "example_function_x: function_citation_x" in citations
     assert example_function_4() == 4
 
@@ -91,6 +89,16 @@ def test_citations_used():
     assert "example_function_1: function_citation_1" in citations
     assert "example_function_x: function_citation_x" in citations
 
+    # Creating a new function doesn't mark it as used.
+    @cite_function()
+    def example_function_5():
+        return 5
+
+    citations = get_used_citations()
+    assert len(citations) == 2
+    assert "example_function_1: function_citation_1" in citations
+    assert "example_function_x: function_citation_x" in citations
+
     # We can reset the list of used citation functions.
     reset_used_citations()
     assert len(get_used_citations()) == 0
@@ -101,3 +109,8 @@ def test_get_all_imports():
     imports = get_all_imports(skip_common=False)
     assert len(imports) > 0
     assert "sys" in imports
+
+    # We can filter out Python's base imports.
+    imports = get_all_imports(skip_common=True)
+    assert len(imports) > 0
+    assert "sys" not in imports

@@ -11,40 +11,73 @@ class CitationEntry:
 
     Attributes
     ----------
-    function_name : str
-        The name of the module and function where the citation is needed.
+    key : str
+        The name of the module, function, or other aspect where the citation is needed.
     citation : str, optional
         The citation string.
-    docstring : str, optional
-        The docstring of the function.
     label : str, optional
         The (optional) user-defined label for the citation.
     """
 
-    def __init__(self, function_name, docstring=None, label=None):
-        self.function_name = function_name
-        self.docstring = docstring
+    def __init__(self, key, citation=None, label=None):
+        self.key = key
+        self.citation = citation
         self.label = label
 
-        if label is not None and len(label) > 0:
-            self.citation = label
-        elif docstring is not None and len(docstring) > 0:
-            # TODO: Parse the docstring for the actual citation.
-            self.citation = docstring
-        else:
-            self.citation = "No citation provided."
+        if citation is None:
+            if label is not None and len(label) > 0:
+                self.citation = label
+            else:
+                self.citation = "No citation provided."
 
     def __hash__(self):
-        return hash(self.function_name)
+        return hash(self.key)
 
     def __str__(self):
-        return f"{self.function_name}: {self.citation}"
+        return f"{self.key}: {self.citation}"
 
     def __repr__(self):
-        return f"{self.function_name}:\n{self.citation}"
+        return f"{self.key}:\n{self.citation}"
+
+    @classmethod
+    def from_function(cls, func, label=None):
+        """Create a CitationEntry from a function.
+
+        Parameters
+        ----------
+        func : function
+            The function to create the citation entry from.
+        label : str, optional
+            The (optional) user-defined label for the citation.
+
+        Returns
+        -------
+        CitationEntry
+            The citation entry.
+        """
+        # TODO: Parse the docstring to see if it has a specific citation.
+        return cls(
+            key=func.__qualname__,
+            citation=func.__doc__,
+            label=label,
+        )
 
 
-def citation(label=None):
+def cite_module(name, citation):
+    """Add a citation to a entire module.
+
+    Parameters
+    ----------
+    name : str
+        The name of the module.
+    citation : str
+        The citation string.
+    """
+    CITATION_REGISTRY_ALL[name] = CitationEntry(name, citation)
+    CITATION_REGISTRY_USED.add(name)
+
+
+def cite_function(label=None):
     """A function wrapper for adding a citation to a function.
 
     Parameters
@@ -67,12 +100,7 @@ def citation(label=None):
 
         # Save the citation as ALL when it is first defined.
         if func.__qualname__ not in CITATION_REGISTRY_ALL:
-            citation = CitationEntry(
-                function_name=func.__qualname__,
-                docstring=func.__doc__,
-                label=label,
-            )
-
+            citation = CitationEntry.from_function(func, label=label)
             CITATION_REGISTRY_ALL[func.__qualname__] = citation
         return fun_wrapper
 
