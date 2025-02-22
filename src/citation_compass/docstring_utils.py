@@ -13,8 +13,12 @@ _CITATION_KEYWORDS = [
 _CITATION_SECTION_HEADERS = set([f"{keyword}:" for keyword in _CITATION_KEYWORDS])
 
 
-def check_docstring_for_keyword(docstring):
-    """Checks the docstring for any of the keywords that indicate a citation.
+def check_docstring_for_any_keyword(docstring):
+    """Checks the docstring for any of the keywords that indicate a citation,
+    which can include the words in the middle of a sentence. As such, this approach
+    is a heuristic and does not require the citation to be in a specific format. It
+    is meant to be used to assess whether a module that is not tagged by this one
+    may contain citations.
 
     Parameters
     ----------
@@ -39,7 +43,10 @@ def check_docstring_for_keyword(docstring):
 def extract_citation(docstring):
     """Extracts the citation from a docstring.
 
-    This assumes that the citation is in the form "keyword: information".
+    This function assumes that the citation is in the formatted to
+    match this package using the "keyword: information" structure at
+    the start of a line.
+
     For example, if the docstring contains:
     "Citation:
         Author, Title, year.

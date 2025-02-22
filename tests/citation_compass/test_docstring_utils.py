@@ -1,22 +1,22 @@
 from citation_compass.docstring_utils import (
     _CITATION_KEYWORDS,
-    check_docstring_for_keyword,
+    check_docstring_for_any_keyword,
     extract_citation,
 )
 
 
 def test_check_docstring_for_keyword():
     """Check that the function correctly identifies citation keywords."""
-    assert check_docstring_for_keyword("This is a docstring.") is False
-    assert check_docstring_for_keyword("This is a citation.") is True
-    assert check_docstring_for_keyword("This is a reference.") is True
+    assert check_docstring_for_any_keyword("This is a docstring.") is False
+    assert check_docstring_for_any_keyword("This is a citation.") is True
+    assert check_docstring_for_any_keyword("This is a reference.") is True
 
     for keyword in _CITATION_KEYWORDS:
-        assert check_docstring_for_keyword(f"{keyword}: other stuff") is True
+        assert check_docstring_for_any_keyword(f"{keyword}: other stuff") is True
 
     # Check empty docstrings.
-    assert check_docstring_for_keyword("") is False
-    assert check_docstring_for_keyword(None) is False
+    assert check_docstring_for_any_keyword("") is False
+    assert check_docstring_for_any_keyword(None) is False
 
 
 def test_extract_citation():

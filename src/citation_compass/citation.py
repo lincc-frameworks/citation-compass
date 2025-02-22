@@ -5,7 +5,7 @@ import inspect
 import logging
 import sys
 
-from .docstring_utils import check_docstring_for_keyword, extract_citation
+from .docstring_utils import check_docstring_for_any_keyword, extract_citation
 
 CITATION_REGISTRY_ALL = {}
 CITATION_REGISTRY_USED = set()
@@ -107,6 +107,8 @@ def cite_module(name, citation=None):
         module = sys.modules[name]
         if hasattr(module, "__doc__"):
             citation = extract_citation(module.__doc__)
+            if citation is None or len(citation) == 0:
+                citation = module.__doc__
 
     CITATION_REGISTRY_ALL[name] = CitationEntry(name, citation)
     CITATION_REGISTRY_USED.add(name)
@@ -191,7 +193,8 @@ def get_all_imports(skip_common=True, use_keywords=False):
     skip_common : bool
         Whether to skip the common imports, such as the built-in modules.
     use_keywords : bool
-        Check the import's docstring for keywords that indicate a citation.
+        Uses a heuristic that checks if the import's docstring contains
+        keywords that may indicate a citation.
 
     Returns
     -------
@@ -218,7 +221,7 @@ def get_all_imports(skip_common=True, use_keywords=False):
 
         if not skip_common or not skip:
             if use_keywords and hasattr(module, "__doc__"):
-                if check_docstring_for_keyword(module.__doc__):
+                if check_docstring_for_any_keyword(module.__doc__):
                     imports.append(name)
             else:
                 imports.append(name)
