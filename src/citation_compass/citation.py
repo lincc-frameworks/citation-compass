@@ -5,7 +5,7 @@ import inspect
 import logging
 import sys
 
-from .docstring_utils import check_docstring_for_any_keyword, extract_citation
+from .docstring_utils import check_for_any_citation_keyword, extract_citation
 
 CITATION_REGISTRY_ALL = {}
 CITATION_REGISTRY_USED = set()
@@ -221,7 +221,7 @@ def get_all_imports(skip_common=True, use_keywords=False):
 
         if not skip_common or not skip:
             if use_keywords and hasattr(module, "__doc__"):
-                if check_docstring_for_any_keyword(module.__doc__):
+                if check_for_any_citation_keyword(module.__doc__):
                     imports.append(name)
             else:
                 imports.append(name)

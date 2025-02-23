@@ -1,20 +1,28 @@
 """A helper module for searching docstrings for citations."""
 
-_CITATION_KEYWORDS = [
-    "acknowledge",
+_CITATION_HEADER_KEYWORDS = [
     "acknowledgement",
     "acknowledgements",
-    "cite",
     "citation",
     "citations",
     "reference",
     "references",
 ]
-_CITATION_SECTION_HEADERS = set([f"{keyword}:" for keyword in _CITATION_KEYWORDS])
+_CITATION_OTHER_KEYWORDS = [
+    "acknowledge",
+    "arxiv",
+    "attribute",
+    "attribution",
+    "bibliography",
+    "cite",
+]
+
+_CITATION_SECTION_HEADERS = set([f"{keyword}:" for keyword in _CITATION_HEADER_KEYWORDS])
+_CITATION_ALL_KEYWORDS = _CITATION_HEADER_KEYWORDS + _CITATION_OTHER_KEYWORDS
 
 
-def check_docstring_for_any_keyword(docstring):
-    """Checks the docstring for any of the keywords that indicate a citation,
+def check_for_any_citation_keyword(string):
+    """Checks a string for any of the keywords that indicate a citation,
     which can include the words in the middle of a sentence. As such, this approach
     is a heuristic and does not require the citation to be in a specific format. It
     is meant to be used to assess whether a module that is not tagged by this one
@@ -22,19 +30,19 @@ def check_docstring_for_any_keyword(docstring):
 
     Parameters
     ----------
-    docstring : str
-        The docstring to check.
+    string : str
+        The string to check.
 
     Returns
     -------
     bool
         Whether the docstring contains a keyword that indicates a citation.
     """
-    if docstring is None or len(docstring) == 0:
+    if string is None or len(string) == 0:
         return False
 
-    for line in [line.lower() for line in docstring.split("\n")]:
-        for keyword in _CITATION_KEYWORDS:
+    for line in [line.lower() for line in string.split("\n")]:
+        for keyword in _CITATION_ALL_KEYWORDS:
             if keyword in line:
                 return True
     return False
