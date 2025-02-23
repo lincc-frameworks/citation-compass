@@ -2,6 +2,7 @@ from citation_compass.docstring_utils import (
     _CITATION_ALL_KEYWORDS,
     check_for_any_citation_keyword,
     extract_citation,
+    extract_urls,
 )
 
 
@@ -73,3 +74,28 @@ def test_extract_citation():
         year
     """
     assert extract_citation(docstring) == "Author1, Author2, Title, journal, year"
+
+
+def test_extract_urls():
+    """Test that we can extract urls from a docstring."""
+    # Check an empty docstring.
+    assert extract_urls("") == []
+    assert extract_urls(None) == []
+
+    # Start with single line docstrings.
+    assert extract_urls("https://my_paper_url") == ["https://my_paper_url"]
+    assert extract_urls("Please cite: https://my_paper_url") == ["https://my_paper_url"]
+    assert extract_urls("Citation:\n    http://my_paper_url") == ["http://my_paper_url"]
+    assert extract_urls("Info: Nothing to see here") == []
+
+    # Test multi-line docstrings.
+    docstring = """Top material:
+    Stuff here.
+
+    Citation:
+        https://my_paper_url1
+        https://my_paper_url2
+
+    Bottom material:
+    More stuff."""
+    assert extract_urls(docstring) == ["https://my_paper_url1", "https://my_paper_url2"]

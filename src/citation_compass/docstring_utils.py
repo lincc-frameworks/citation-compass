@@ -94,3 +94,26 @@ def extract_citation(docstring):
 
                 return citation.strip()
     return None
+
+
+def extract_urls(string):
+    """Extracts URLs from a string.
+
+    Parameters
+    ----------
+    string : str
+        The string to extract URLs from.
+
+    Returns
+    -------
+    urls : list of str
+        The extracted URLs.
+    """
+    if string is None or len(string) == 0:
+        return []
+
+    urls = []
+    for word in string.split():
+        if "http" in word:
+            urls.append(word)
+    return urls

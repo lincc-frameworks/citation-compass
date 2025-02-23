@@ -5,7 +5,11 @@ import inspect
 import logging
 import sys
 
-from .docstring_utils import check_for_any_citation_keyword, extract_citation
+from .docstring_utils import (
+    check_for_any_citation_keyword,
+    extract_citation,
+    extract_urls,
+)
 
 CITATION_REGISTRY_ALL = {}
 CITATION_REGISTRY_USED = set()
@@ -40,6 +44,8 @@ class CitationEntry:
         The citation string.
     label : str, optional
         The (optional) user-defined label for the citation.
+    urls : list of str
+        A list of URLs extracted from the citation string.
     """
 
     def __init__(self, key, citation=None, label=None):
@@ -52,6 +58,8 @@ class CitationEntry:
                 self.citation = label
             else:
                 self.citation = "No citation provided."
+
+        self.urls = extract_urls(self.citation)
 
     def __hash__(self):
         return hash(self.key)
