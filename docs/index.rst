@@ -1,9 +1,9 @@
 
-.. cite_by_function documentation main file.
+.. citation_compass documentation main file.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to cite_by_function's documentation!
+Welcome to citation_compass's documentation!
 ========================================================================================
 
 Dev Guide - Getting Started
@@ -16,7 +16,7 @@ create and activate a new environment.
 
 .. code-block:: console
 
-   >> conda create env -n <env_name> python=3.10
+   >> conda create env -n <env_name> python=3.11
    >> conda activate <env_name>
 
 
