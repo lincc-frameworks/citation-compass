@@ -1,6 +1,6 @@
 
 [project]
-name = "cite_by_function"
+name = "citation-compass"
 license = {file = "LICENSE"}
 readme = "README.md"
 authors = [
@@ -15,16 +15,17 @@ classifiers = [
     "Programming Language :: Python",
 ]
 dynamic = ["version"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
 ]
 
 [project.urls]
-"Source Code" = "https://github.com/lincc-frameworks/cite_by_function"
+"Source Code" = "https://github.com/lincc-frameworks/citation-compass"
 
 # On a mac, install optional dependencies with `pip install '.[dev]'` (include the single quotes)
 [project.optional-dependencies]
 dev = [
+    "asv==0.6.4", # Used to compute performance benchmarks
     "jupyter", # Clears output from Jupyter notebooks
     "pre-commit", # Used to run checks before finalizing a git commit
     "pytest",
@@ -40,7 +41,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
-write_to = "src/cite_by_function/_version.py"
+write_to = "src/citation_compass/_version.py"
 
 [tool.pytest.ini_options]
 testpaths = [
@@ -49,7 +50,7 @@ testpaths = [
 
 [tool.black]
 line-length = 110
-target-version = ["py39"]
+target-version = ["py310"]
 
 [tool.isort]
 profile = "black"
@@ -57,7 +58,7 @@ line_length = 110
 
 [tool.ruff]
 line-length = 110
-target-version = "py39"
+target-version = "py310"
 
 [tool.ruff.lint]
 select = [
@@ -99,7 +100,8 @@ ignore = [
     "SIM117", # Allow nested with
     "UP015", # Allow redundant open parameters
     "UP028", # Allow yield in for loop
+    "I001", # Allow custom isort configuration
 ]
 
 [tool.coverage.run]
-omit=["src/cite_by_function/_version.py"]
+omit=["src/citation_compass/_version.py"]
