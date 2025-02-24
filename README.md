@@ -9,8 +9,11 @@ The citation-compass module use a combination of author-specified tags and heuri
 
 ## Installing
 
-TODO: Write this once it is available on pypi.
+Citation-compass can be installed from pypi with:
 
+```
+pip install citation-compass
+```
 
 ## Getting Started
 
