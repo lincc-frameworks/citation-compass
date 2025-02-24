@@ -1,0 +1,33 @@
+{
+    "benchmarks.time_call_function": {
+        "code": "def time_call_function():\n    \"\"\"Time the cost of calling a wrapped function.\"\"\"\n    _ = fake_function()",
+        "min_run_count": 2,
+        "name": "benchmarks.time_call_function",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "type": "time",
+        "unit": "seconds",
+        "version": "5e895c836d26358495c7e8f857dfb4432cdfbb28ccdd340956dc9d886ee7ddf9",
+        "warmup_time": -1
+    },
+    "benchmarks.time_create_function": {
+        "code": "def time_create_function():\n    \"\"\"Time the use of a wrapper with a label.\"\"\"\n\n    @cc.cite_function(\"example\")\n    def test_function():\n        return 1",
+        "min_run_count": 2,
+        "name": "benchmarks.time_create_function",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "type": "time",
+        "unit": "seconds",
+        "version": "c8927bad6db56cc6cf727cefb4a545d276f37de5aafba7037008a7d15fd7ae9b",
+        "warmup_time": -1
+    },
+    "version": 2
+}
