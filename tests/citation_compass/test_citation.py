@@ -5,7 +5,6 @@ from citation_compass import (
     cite_function,
     cite_object,
     get_all_citations,
-    get_all_imports,
     get_used_citations,
     reset_used_citations,
 )
@@ -221,24 +220,3 @@ def test_citations_used():
     # We can reset the list of used citation functions.
     reset_used_citations()
     assert len(get_used_citations()) == 0
-
-
-def test_get_all_imports():
-    """Check that the imports are registered."""
-    imports = get_all_imports(skip_common=False)
-    assert len(imports) > 0
-    assert "sys" in imports
-    assert "fake_module" in imports
-
-    # We can filter out Python's base imports.
-    imports = get_all_imports(skip_common=True)
-    assert len(imports) > 0
-    assert "sys" not in imports
-    assert "fake_module" in imports
-
-    # We can search for citation keywords in the module docstrings.
-    old_len = len(imports)
-    imports = get_all_imports(skip_common=True, use_keywords=True)
-    assert len(imports) > 0
-    assert len(imports) < old_len
-    assert "fake_module" in imports
