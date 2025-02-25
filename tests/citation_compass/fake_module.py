@@ -5,7 +5,7 @@ Citation: CitationCompass, 2025.
 
 from citation_compass import cite_module, cite_function, CiteClass
 
-cite_module("fake_module")
+cite_module(__name__)
 
 
 def fake_uncited_function():

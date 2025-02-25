@@ -17,15 +17,42 @@ pip install citation-compass
 
 ## Getting Started
 
-The citation-compase module works via a series of function decorators. You can attach a decorator to a function you would like to cite using:
+The citation-compass module provides mechanisms for code authors to annotate portions of their code that should be cited. The author’s can annotate:
+
+* **modules** - An author can add an annotation for a module (or submodule) by adding `cite_module(__name__)` function to the module's file. This will automatically determine the name of the current (sub)module and mark it for citation. Author's can also mark imported modules by passing in a string with the name of that module, such as `cite_module("astropy")`. Cited modules will automatically be included on both the all citations and used citations lists.
+
+* **classes** - An author can annotate a class by inheriting from `CiteClass`, such as `my_class(dependency1, CiteClass):`. Cited classes will be included on the all citations list when they are defined and the used citation list when the first object is instantiated.
+
+* **functions** - An author can annotate a function using the `@cite_function` decorator. Cited functions will be included on the all citations list when they are defined and the used citation list when they are first called.
+
+* **methods** - An author can annotate a class method using the `@cite_function` decorator as well. Cited functions will be included on the all citations list when they are defined and the used citation list when they are first called.
+
+* **objects** - An author can cite an instantiated object using the `cite_object(obj)` function. Note that we do not expect this to be a typical use case. Most users will want to use a class-level citation instead. However citing an object can be used with objects from external packages. Cited objects will be referenced by the object's class information. Cited objects are added to both the all citations and used citations list as soon as the `cite_object` function is called.
+
+### Example: Citing a Function
+
+Users can annotate a function using the `@cite_function` decorator. This will add an entry mapping the function's identifier to citation information, which may include the docstring, a user defined label, or extracted information.
 
 ```
-@cite_function()
+@cite_function
 def function_that_uses_something():
+    """My docstring..."
     ...
 ```
 
-This will add an entry mapping the function's identifier to citation information, which may include the docstring, a user defined label, or extracted information.
+### Example: Citing a Class
+
+Users can annotate a class by inheriting from `CiteClass`:
+
+```
+my_class(dependency1, CiteClass):
+    """My docstring..."
+    def __init__(self, param1):
+        ...
+    ...
+```
+
+## Listing Citations
 
 Users can access all functions in their module (and its dependencies) that have a citation annotation using:
 
@@ -39,14 +66,19 @@ Similarly you can get a list of the citations for only the called functions duri
 citation_list = get_used_citations()
 ```
 
+## Exporing Imports
+
 Since some packages need to be cited when they are used, you can also call
 
 ```
 import_list = get_all_imports()
 ```
 
-To get a list of all modules that were imported.
+To get a list of all modules that were imported. This function includes two very rough heuristics for filtering the modules:
 
+* **skip_common** (default: True): Use a heuristic to ignore files that are common python imports, such as anything in "built-in" or "frozen".
+
+* **use_keywords** (default: False): Searches the module's docstring for words that could indicate the need to cite, such as "cite", "arxiv", or "acknowledgement".
 
 ## Acknowledgements
 
