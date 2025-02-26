@@ -14,13 +14,13 @@ CITATION_REGISTRY_ALL = {}
 CITATION_REGISTRY_USED = set()
 
 
-def _get_full_name(thing):
+def _get_full_name(obj):
     """Return the maximally qualified name of a thing.
 
     Parameters
     ----------
-    thing : object
-        The thing to get the name of.
+    obj : object
+        The obj to get the name of.
 
     Returns
     -------
@@ -28,18 +28,18 @@ def _get_full_name(thing):
         The fully qualified name of the thing.
     """
     # Try to determine the name of the "thing".
-    if hasattr(thing, "__qualname__"):
-        base_name = thing.__qualname__
-    elif hasattr(thing, "__name__"):
-        base_name = thing.__name__
-    elif hasattr(thing, "__class__"):
+    if hasattr(obj, "__qualname__"):
+        base_name = obj.__qualname__
+    elif hasattr(obj, "__name__"):
+        base_name = obj.__name__
+    elif hasattr(obj, "__class__"):
         # If this is an object, use the class's name.
-        base_name = thing.__class__.__qualname__
+        base_name = obj.__class__.__qualname__
     else:
-        raise ValueError(f"Could not determine the name of {thing}")
+        raise ValueError(f"Could not determine the name of {obj}")
 
     # Get the string for the module (if we can find it).
-    module = inspect.getmodule(thing)
+    module = inspect.getmodule(obj)
     full_name = base_name if module is None else f"{module.__name__}.{base_name}"
     return full_name
 
