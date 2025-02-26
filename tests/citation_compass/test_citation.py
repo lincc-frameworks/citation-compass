@@ -4,6 +4,7 @@ from citation_compass.citation import _get_full_name
 from citation_compass import (
     cite_function,
     cite_object,
+    find_in_citations,
     get_all_citations,
     get_used_citations,
     reset_used_citations,
@@ -220,3 +221,31 @@ def test_citations_used():
     # We can reset the list of used citation functions.
     reset_used_citations()
     assert len(get_used_citations()) == 0
+
+
+def test_find_in_citations():
+    """Test the find_in_citations() function."""
+
+    # Test we can find text by the key.
+    assert len(find_in_citations("function_citation_1")) == 1
+    assert len(find_in_citations("function_citation_2")) == 1
+    assert len(find_in_citations("function_citation_300")) == 0
+    assert len(find_in_citations("function")) >= 3
+    assert len(find_in_citations("FakeCitedClass")) == 1
+
+    # Test we can find text by the citation.
+    assert len(find_in_citations("A 2nd fake class for testing.")) == 1
+    assert len(find_in_citations("A fake class method for testing.")) == 1
+    assert len(find_in_citations("This string does not exist.")) == 0
+
+    # Check used citations.
+    reset_used_citations()
+    assert len(find_in_citations("function_citation_1", True)) == 0
+    assert len(find_in_citations("FakeCitedClass", True)) == 0
+    assert len(find_in_citations("A 2nd fake class for testing.", True)) == 0
+
+    _ = example_function_1()
+    assert len(find_in_citations("function_citation_1", True)) == 1
+
+    _ = fake_module.FakeCitedClass()
+    assert len(find_in_citations("FakeCitedClass", True)) == 1
