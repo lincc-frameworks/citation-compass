@@ -256,6 +256,32 @@ def get_used_citations():
     return citations
 
 
+def find_in_citations(query, used_only=False):
+    """Find a query string in the citation text. This is primarily used for
+    testing, where a user might want to check if a citation is present.
+
+    Parameters
+    ----------
+    query : str
+        The query string to search for.
+    used_only : bool, optional
+        If True, only search in the used citations. If False, search in all citations.
+
+    Returns
+    -------
+    matches : list of str
+        A list of matching citation strings. This list is empty if no matches are found.
+    """
+    search_set = CITATION_REGISTRY_USED if used_only else CITATION_REGISTRY_ALL.keys()
+
+    matches = []
+    for name in search_set:
+        entry = str(CITATION_REGISTRY_ALL[name])
+        if query in entry:
+            matches.append(entry)
+    return matches
+
+
 def reset_used_citations():
     """Reset the list of used citations."""
     CITATION_REGISTRY_USED.clear()
