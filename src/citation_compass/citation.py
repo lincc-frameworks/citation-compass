@@ -14,21 +14,33 @@ CITATION_REGISTRY_ALL = {}
 CITATION_REGISTRY_USED = set()
 
 
-def _get_full_name(thing):
+def _get_full_name(obj):
     """Return the maximally qualified name of a thing.
 
     Parameters
     ----------
-    thing : object
-        The thing to get the name of.
+    obj : object
+        The obj to get the name of.
 
     Returns
     -------
     str
         The fully qualified name of the thing.
     """
-    module = inspect.getmodule(thing)
-    full_name = f"{module.__name__}.{thing.__qualname__}" if module else thing.__qualname__
+    # Try to determine the name of the "thing".
+    if hasattr(obj, "__qualname__"):
+        base_name = obj.__qualname__
+    elif hasattr(obj, "__name__"):
+        base_name = obj.__name__
+    elif hasattr(obj, "__class__"):
+        # If this is an object, use the class's name.
+        base_name = obj.__class__.__qualname__
+    else:
+        raise ValueError(f"Could not determine the name of {obj}")
+
+    # Get the string for the module (if we can find it).
+    module = inspect.getmodule(obj)
+    full_name = base_name if module is None else f"{module.__name__}.{base_name}"
     return full_name
 
 
@@ -70,13 +82,13 @@ class CitationEntry:
         return f"{self.key}:\n{self.citation}"
 
     @classmethod
-    def from_function(cls, func, label=None):
-        """Create a CitationEntry from a function.
+    def from_object(cls, obj, label=None):
+        """Create a CitationEntry from any object (including a function or method).
 
         Parameters
         ----------
-        func : function
-            The function to create the citation entry from.
+        obj : object
+            The object from which to create the citation.
         label : str, optional
             The (optional) user-defined label for the citation.
 
@@ -85,12 +97,18 @@ class CitationEntry:
         CitationEntry
             The citation entry.
         """
-        # Try to parse a citation from the
-        citation_text = extract_citation(func.__doc__)
+        # Try to parse a citation from the object's docstring (if there is one).
+        if hasattr(obj, "__doc__"):
+            docstring = obj.__doc__
+        elif hasattr(obj, "__class__") and hasattr(obj.__class__, "__doc__"):
+            docstring = obj.__class__.__doc__
+        else:
+            docstring = ""
+        citation_text = extract_citation(docstring)
         if citation_text is None:
-            citation_text = func.__doc__
+            citation_text = docstring
 
-        full_name = _get_full_name(func)
+        full_name = _get_full_name(obj)
 
         return cls(
             key=full_name,
@@ -121,8 +139,40 @@ def cite_module(name, citation=None):
     CITATION_REGISTRY_USED.add(name)
 
 
+class CiteClass:
+    """A super class for adding a citation to a class."""
+
+    def __init__(self):
+        pass
+
+    def __init_subclass__(cls):
+        # Add the class's full name
+        full_name = _get_full_name(cls)
+        cls._citation_compass_name = full_name
+
+        # Save the citation as ALL when it is first defined.
+        if full_name not in CITATION_REGISTRY_ALL:
+            CITATION_REGISTRY_ALL[full_name] = CitationEntry.from_object(cls)
+        else:
+            logging.warning(f"Duplicated citation tag for class: {full_name}")
+
+        # Wrap the constructor so the class is marked used when
+        # the first object is instantiated.
+        original_init = cls.__init__
+
+        @wraps(original_init)
+        def init_wrapper(*args, **kwargs):
+            # Save the citation as USED when it is first called.
+            if cls._citation_compass_name not in CITATION_REGISTRY_USED:
+                CITATION_REGISTRY_USED.add(cls._citation_compass_name)
+            return original_init(*args, **kwargs)
+
+        cls.__init__ = init_wrapper
+
+
 def cite_function(label=None):
-    """A function wrapper for adding a citation to a function.
+    """A function wrapper for adding a citation to a function or
+    class method.
 
     Parameters
     ----------
@@ -132,7 +182,7 @@ def cite_function(label=None):
     Returns
     -------
     function
-        The wrapped function.
+        The wrapped function or method.
     """
     # If the label is callable, there were no parentheses on the
     # dectorator and it passed in the function instead. So use None
@@ -151,7 +201,7 @@ def cite_function(label=None):
 
         # Save the citation as ALL when it is first defined.
         if full_name not in CITATION_REGISTRY_ALL:
-            citation = CitationEntry.from_function(func, label=use_label)
+            citation = CitationEntry.from_object(func, label=use_label)
             CITATION_REGISTRY_ALL[full_name] = citation
         else:
             logging.warning(f"Duplicated citation tag for function: {full_name}")
@@ -161,6 +211,25 @@ def cite_function(label=None):
     if callable(label):
         return decorator(label)
     return decorator
+
+
+def cite_object(obj, label=None):
+    """Add a citation for a specific object.
+
+    Parameters
+    ----------
+    obj : object
+        The object to add a citation for.
+    label : str, optional
+        The (optional) user-defined label for the citation.
+    """
+    full_name = _get_full_name(obj)
+    if full_name not in CITATION_REGISTRY_ALL:
+        CITATION_REGISTRY_ALL[full_name] = CitationEntry.from_object(obj, label=label)
+    else:
+        logging.warning(f"Duplicated citation tag for object: {full_name}")
+
+    CITATION_REGISTRY_USED.add(full_name)
 
 
 def get_all_citations():

@@ -23,5 +23,5 @@ def test_get_all_imports():
     assert len(imports) < old_len
     assert "fake_module" in imports
 
-    # We call fake_function to make sure it is correctly imported.
-    assert fake_module.fake_function() == 0
+    # We call fake_uncited_function to make sure it is correctly imported.
+    assert fake_module.fake_uncited_function() == 0
