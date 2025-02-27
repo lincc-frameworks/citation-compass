@@ -34,3 +34,11 @@ class FakeCitedClass(CiteClass):
     def fake_method(self):
         """A fake (uncited) class method for testing."""
         return 1
+
+
+# Test that we propogate the citation to subclasses.
+class InheritedFakeClass(FakeCitedClass):
+    """A 3rd fake class for testing."""
+
+    def __init__(self):
+        pass
