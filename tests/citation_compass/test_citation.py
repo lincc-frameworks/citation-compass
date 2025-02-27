@@ -109,6 +109,19 @@ def test_citations_all():
     )
     assert sorted(get_all_citations()) == sorted(known_citations)
 
+    # We can add a citation that does not track used.
+    @cite_function(track_used=False)
+    def example_function_6():
+        return 6
+
+    assert example_function_6() == 6
+
+    # Check we have added the citation.
+    known_citations.append(
+        "test_citation.test_citations_all.<locals>.example_function_6: No citation provided."
+    )
+    assert sorted(get_all_citations()) == sorted(known_citations)
+
 
 def test_citations_used():
     """Check that the used citations are registered as they are used."""
@@ -153,11 +166,21 @@ def test_citations_used():
     for item in used_citations:
         assert item in citations
 
+    # We can add a citation that does not track used. This function is
+    # added to the "used" list immediately.
+    @cite_function(track_used=False)
+    def not_used():
+        """Test"""
+        return 6
+
+    used_citations.append("test_citation.test_citations_used.<locals>.not_used: Test")
+    assert sorted(get_used_citations()) == sorted(used_citations)
+    assert not_used() == 6
+
     # We can manually cite an object.
     obj = fake_module.FakeClass()
     cite_object(obj)
     used_citations.append("fake_module.FakeClass: A fake class for testing.")
-    assert sorted(get_used_citations()) == sorted(used_citations)
 
     # We can cite a class method.
     assert obj.fake_method() == 0

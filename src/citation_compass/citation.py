@@ -170,14 +170,18 @@ class CiteClass:
         cls.__init__ = init_wrapper
 
 
-def cite_function(label=None):
+def cite_function(label=None, track_used=True):
     """A function wrapper for adding a citation to a function or
     class method.
 
     Parameters
     ----------
-    label : str
+    label : str, optional
         The (optional) user-defined label for the citation.
+    track_used : bool
+        If True, the function will be marked as used when it is called.
+        This adds a small amount of overhead to each function call.
+        Default: True.
 
     Returns
     -------
@@ -192,19 +196,28 @@ def cite_function(label=None):
     def decorator(func):
         full_name = _get_full_name(func)
 
-        @wraps(func)
-        def fun_wrapper(*args, **kwargs):
-            # Save the citation as USED when it is first called.
-            if func.__qualname__ not in CITATION_REGISTRY_USED:
-                CITATION_REGISTRY_USED.add(full_name)
-            return func(*args, **kwargs)
-
         # Save the citation as ALL when it is first defined.
         if full_name not in CITATION_REGISTRY_ALL:
             citation = CitationEntry.from_object(func, label=use_label)
             CITATION_REGISTRY_ALL[full_name] = citation
         else:
             logging.warning(f"Duplicated citation tag for function: {full_name}")
+
+        # Wrap the function so it is marked as USED when it is called.
+        if track_used:
+
+            @wraps(func)
+            def fun_wrapper(*args, **kwargs):
+                # Save the citation as USED when it is first called.
+                if func.__qualname__ not in CITATION_REGISTRY_USED:
+                    CITATION_REGISTRY_USED.add(full_name)
+                return func(*args, **kwargs)
+        else:
+            # We do not wrap the function, but just return the original function.
+            fun_wrapper = func
+
+            # We mark as used be default so the citation does not get dropped.
+            CITATION_REGISTRY_USED.add(full_name)
 
         return fun_wrapper
 
