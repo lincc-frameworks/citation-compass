@@ -285,3 +285,15 @@ def find_in_citations(query, used_only=False):
 def reset_used_citations():
     """Reset the list of used citations."""
     CITATION_REGISTRY_USED.clear()
+
+
+def print_all_citations():
+    """Print all citations in the software package in a user-friendly way."""
+    for name, citation in CITATION_REGISTRY_ALL.items():
+        print(f"{name}:\n{citation.citation}\n")
+
+
+def print_used_citations():
+    """Print the used citations in the software package in a user-friendly way."""
+    for name in CITATION_REGISTRY_USED:
+        print(f"{name}:\n{CITATION_REGISTRY_ALL[name].citation}\n")
