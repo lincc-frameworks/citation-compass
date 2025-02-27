@@ -120,10 +120,7 @@ def test_citations_all():
     known_citations.append(
         "test_citation.test_citations_all.<locals>.example_function_6: No citation provided."
     )
-    citations = get_all_citations()
-    assert len(citations) == len(known_citations)
-    for item in known_citations:
-        assert item in citations
+    assert sorted(get_all_citations()) == sorted(known_citations)
 
 
 def test_citations_used():
@@ -177,17 +174,13 @@ def test_citations_used():
         return 6
 
     used_citations.append("test_citation.test_citations_used.<locals>.not_used: Test")
-
-    citations = get_used_citations()
-    assert len(citations) == len(used_citations)
-    for item in used_citations:
-        assert item in citations
+    assert sorted(get_used_citations()) == sorted(used_citations)
+    assert not_used() == 6
 
     # We can manually cite an object.
     obj = fake_module.FakeClass()
     cite_object(obj)
     used_citations.append("fake_module.FakeClass: A fake class for testing.")
-    assert sorted(get_used_citations()) == sorted(used_citations)
 
     # We can cite a class method.
     assert obj.fake_method() == 0
