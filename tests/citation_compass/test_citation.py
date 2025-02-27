@@ -52,12 +52,9 @@ def test_citations_all():
         "fake_module: CitationCompass, 2025.",
         "fake_module.FakeClass.fake_method: A fake class method for testing.",
         "fake_module.FakeCitedClass: A 2nd fake class for testing.",
+        "fake_module.InheritedFakeClass: A 3rd fake class for testing.",
     ]
-
-    citations = get_all_citations()
-    assert len(citations) == len(known_citations)
-    for item in known_citations:
-        assert item in citations
+    assert sorted(get_all_citations()) == sorted(known_citations)
 
     # Check that we have preserved the name and __doc__ string of the function
     # through the wrapping process.
@@ -84,10 +81,7 @@ def test_citations_all():
     known_citations.append(
         "test_citation.test_citations_all.<locals>.example_function_3: function_citation_3"
     )
-    citations = get_all_citations()
-    assert len(citations) == len(known_citations)
-    for item in known_citations:
-        assert item in citations
+    assert sorted(get_all_citations()) == sorted(known_citations)
 
     # We can add a citation without a label.
     @cite_function()
@@ -100,10 +94,7 @@ def test_citations_all():
     known_citations.append(
         "test_citation.test_citations_all.<locals>.example_function_4: No citation provided."
     )
-    citations = get_all_citations()
-    assert len(citations) == len(known_citations)
-    for item in known_citations:
-        assert item in citations
+    assert sorted(get_all_citations()) == sorted(known_citations)
 
     # We can add a citation without parentheses in the decorator.
     @cite_function
@@ -116,10 +107,7 @@ def test_citations_all():
     known_citations.append(
         "test_citation.test_citations_all.<locals>.example_function_5: No citation provided."
     )
-    citations = get_all_citations()
-    assert len(citations) == len(known_citations)
-    for item in known_citations:
-        assert item in citations
+    assert sorted(get_all_citations()) == sorted(known_citations)
 
     # We can add a citation that does not track used.
     @cite_function(track_used=False)
@@ -149,28 +137,17 @@ def test_citations_used():
     # We can use the functions as normal - add example_function_1.
     assert example_function_1() == 1
     used_citations.append("test_citation.example_function_1: function_citation_1")
-
-    citations = get_used_citations()
-    assert len(citations) == len(used_citations)
-    for item in used_citations:
-        assert item in citations
+    assert sorted(get_used_citations()) == sorted(used_citations)
 
     # We can use the functions as normal - add example_function_x.
     assert example_function_x(10) == 10
     used_citations.append("test_citation.example_function_x: function_citation_x")
-
-    citations = get_used_citations()
-    assert len(citations) == len(used_citations)
-    for item in used_citations:
-        assert item in citations
+    assert sorted(get_used_citations()) == sorted(used_citations)
 
     # Reusing a function (example_function_x) does not re-add it.
     assert example_function_x(-5) == -5
     assert example_function_x(15) == 15
-    citations = get_used_citations()
-    assert len(citations) == len(used_citations)
-    for item in used_citations:
-        assert item in citations
+    assert sorted(get_used_citations()) == sorted(used_citations)
 
     # Creating a new function doesn't mark it as used.
     @cite_function()
@@ -178,19 +155,12 @@ def test_citations_used():
         """Test"""
         return 5
 
-    citations = get_used_citations()
-    assert len(citations) == len(used_citations)
-    for item in used_citations:
-        assert item in citations
+    assert sorted(get_used_citations()) == sorted(used_citations)
 
     # We can use the function and it will be marked as used.
     assert example_function_5() == 5
     used_citations.append("test_citation.test_citations_used.<locals>.example_function_5: Test")
-
-    citations = get_used_citations()
-    assert len(citations) == len(used_citations)
-    for item in used_citations:
-        assert item in citations
+    assert sorted(get_used_citations()) == sorted(used_citations)
 
     # Using an uncited function doesn't add it to the list.
     _ = fake_module.fake_uncited_function()
@@ -217,36 +187,30 @@ def test_citations_used():
     obj = fake_module.FakeClass()
     cite_object(obj)
     used_citations.append("fake_module.FakeClass: A fake class for testing.")
-
-    citations = get_used_citations()
-    assert len(citations) == len(used_citations)
-    for item in used_citations:
-        assert item in citations
+    assert sorted(get_used_citations()) == sorted(used_citations)
 
     # We can cite a class method.
     assert obj.fake_method() == 0
     used_citations.append("fake_module.FakeClass.fake_method: A fake class method for testing.")
-
-    citations = get_used_citations()
-    assert len(citations) == len(used_citations)
-    for item in used_citations:
-        assert item in citations
+    assert sorted(get_used_citations()) == sorted(used_citations)
 
     # The CitedClass is added to used the first time it is instantiated.
     obj2 = fake_module.FakeCitedClass()
     used_citations.append("fake_module.FakeCitedClass: A 2nd fake class for testing.")
-    citations = get_used_citations()
-    assert len(citations) == len(used_citations)
-    for item in used_citations:
-        assert item in citations
+    assert sorted(get_used_citations()) == sorted(used_citations)
 
     # Calling object methods does not change anything.
     assert obj2.fake_method() == 1
-    assert len(get_used_citations()) == len(used_citations)
+    assert sorted(get_used_citations()) == sorted(used_citations)
 
     # Instantiating the class again does not change anything.
     _ = fake_module.FakeCitedClass()
-    assert len(get_used_citations()) == len(used_citations)
+    assert sorted(get_used_citations()) == sorted(used_citations)
+
+    # Instantiating a subclass adds that to the used list.
+    _ = fake_module.InheritedFakeClass()
+    used_citations.append("fake_module.InheritedFakeClass: A 3rd fake class for testing.")
+    assert sorted(get_used_citations()) == sorted(used_citations)
 
     # We can reset the list of used citation functions.
     reset_used_citations()
