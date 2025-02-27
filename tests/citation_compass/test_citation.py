@@ -121,6 +121,22 @@ def test_citations_all():
     for item in known_citations:
         assert item in citations
 
+    # We can add a citation that does not track used.
+    @cite_function(track_used=False)
+    def example_function_6():
+        return 6
+
+    assert example_function_6() == 6
+
+    # Check we have added the citation.
+    known_citations.append(
+        "test_citation.test_citations_all.<locals>.example_function_6: No citation provided."
+    )
+    citations = get_all_citations()
+    assert len(citations) == len(known_citations)
+    for item in known_citations:
+        assert item in citations
+
 
 def test_citations_used():
     """Check that the used citations are registered as they are used."""
@@ -178,6 +194,18 @@ def test_citations_used():
 
     # Using an uncited function doesn't add it to the list.
     _ = fake_module.fake_uncited_function()
+    citations = get_used_citations()
+    assert len(citations) == len(used_citations)
+    for item in used_citations:
+        assert item in citations
+
+    # We can add a citation that does not track used.
+    @cite_function(track_used=False)
+    def example_function_no_track_used():
+        return 6
+
+    assert example_function_no_track_used() == 6
+
     citations = get_used_citations()
     assert len(citations) == len(used_citations)
     for item in used_citations:
