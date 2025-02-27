@@ -216,6 +216,9 @@ def cite_function(label=None, track_used=True):
             # We do not wrap the function, but just return the original function.
             fun_wrapper = func
 
+            # We mark as used be default so the citation does not get dropped.
+            CITATION_REGISTRY_USED.add(full_name)
+
         return fun_wrapper
 
     if callable(label):

@@ -199,12 +199,14 @@ def test_citations_used():
     for item in used_citations:
         assert item in citations
 
-    # We can add a citation that does not track used.
+    # We can add a citation that does not track used. This function is
+    # added to the "used" list immediately.
     @cite_function(track_used=False)
-    def example_function_no_track_used():
+    def not_used():
+        """Test"""
         return 6
 
-    assert example_function_no_track_used() == 6
+    used_citations.append("test_citation.test_citations_used.<locals>.not_used: Test")
 
     citations = get_used_citations()
     assert len(citations) == len(used_citations)
