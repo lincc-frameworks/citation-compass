@@ -52,6 +52,7 @@ def test_citations_all():
         "fake_module: CitationCompass, 2025.",
         "fake_module.FakeClass.fake_method: A fake class method for testing.",
         "fake_module.FakeCitedClass: A 2nd fake class for testing.",
+        "fake_module.InheritedFakeClass: A 3rd fake class for testing.",
     ]
 
     citations = get_all_citations()
@@ -217,6 +218,14 @@ def test_citations_used():
     # Instantiating the class again does not change anything.
     _ = fake_module.FakeCitedClass()
     assert len(get_used_citations()) == len(used_citations)
+
+    # Instantiating a subclass adds that to the used list.
+    _ = fake_module.InheritedFakeClass()
+    used_citations.append("fake_module.InheritedFakeClass: A 3rd fake class for testing.")
+    citations = get_used_citations()
+    assert len(citations) == len(used_citations)
+    for item in used_citations:
+        assert item in citations
 
     # We can reset the list of used citation functions.
     reset_used_citations()
