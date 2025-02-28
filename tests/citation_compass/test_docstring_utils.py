@@ -109,6 +109,28 @@ def test_extract_citation_underline():
     More stuff."""
     assert extract_citation(docstring) == "Author1, Author2, Title, year"
 
+    # Sections end after two blank lines.
+    docstring = """Function description.
+
+    Reference
+    -----------
+        Author1,
+        Author2,
+        Title2,
+        year
+
+
+    This is not part of the citation.
+
+    Parameters
+    ----------
+    Stuff here.
+
+    Returns
+    -------
+    More stuff."""
+    assert extract_citation(docstring) == "Author1, Author2, Title2, year"
+
 
 def test_extract_citation_multiple():
     """Test that we can extract multiple citations from a string."""

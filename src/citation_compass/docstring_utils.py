@@ -113,20 +113,22 @@ def extract_citation(docstring):
                         break
         else:
             # We are already in a block, so check for the end of the block.
-            if (
-                block_type == "-"
-                and idx < len(all_lines) - 1
-                and len(all_lines[idx + 1]) > 1
-                and all_lines[idx + 1] == "-" * len(all_lines[idx + 1])
-            ):
+            if block_type == "-" and idx < len(all_lines) - 1:
                 # Section type citation blocks end when we hit the next section.
-                # Check by looking for the underling of the section header. If found,
-                # do not add the current line because it is the next section title.
-                block_type = "Done"
+                next_line = all_lines[idx + 1]
+
+                if len(next_line) > 1 and next_line == "-" * len(next_line):
+                    # Check by looking for the underline of the section header. If found,
+                    # do not add the current line because it is the next section title.
+                    block_type = "Done"
+                elif len(line) == 0 and len(next_line) == 0:
+                    # Sections can also end with two blank lines.
+                    block_type = "Done"
             elif block_type == ":" and len(line) == 0:
                 # End the 'keyword:' block when we hit a blank line.
                 block_type = "Done"
-            else:
+
+            if block_type != "Done":
                 # We are still in the block, so add the line to the current citation.
                 current_citation += " " + line
 
