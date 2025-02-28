@@ -1,6 +1,5 @@
 import fake_module
 
-from citation_compass.citation import _get_full_name
 from citation_compass import (
     cite_function,
     cite_object,
@@ -27,18 +26,6 @@ def example_function_2():
 def example_function_x(x):
     """function_citation_x"""
     return x
-
-
-def test_get_full_name():
-    """Check that the full name is correctly generated."""
-    assert _get_full_name(example_function_1) == "test_citation.example_function_1"
-    assert _get_full_name(_get_full_name) == "citation_compass.citation._get_full_name"
-    assert _get_full_name(fake_module.fake_uncited_function) == "fake_module.fake_uncited_function"
-    assert _get_full_name(fake_module.FakeClass) == "fake_module.FakeClass"
-
-    obj = fake_module.FakeClass()
-    assert _get_full_name(obj) == "fake_module.FakeClass"
-    assert _get_full_name(obj.fake_method) == "fake_module.FakeClass.fake_method"
 
 
 def test_citations_all():
