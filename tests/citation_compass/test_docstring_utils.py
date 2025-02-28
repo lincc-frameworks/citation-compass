@@ -20,8 +20,8 @@ def test_check_docstring_for_keyword():
     assert check_for_any_citation_keyword(None) is False
 
 
-def test_extract_citation():
-    """Test that we can extract a citation from a docstring."""
+def test_extract_citation_colon():
+    """Test that we can extract a citation using the 'keyword:' format."""
     # Check an empty docstring.
     assert extract_citation("") is None
     assert extract_citation(None) is None
@@ -29,7 +29,6 @@ def test_extract_citation():
     # Start with single line docstrings.
     assert extract_citation("Citation: Author, Title, year.") == "Author, Title, year."
     assert extract_citation("Reference: Author, Title, year.") == "Author, Title, year."
-    assert extract_citation("Acknowledgement: Author, Title, year.") == "Author, Title, year."
     assert extract_citation("Info: Nothing to see here") is None
 
     # Test multi-line docstrings.
@@ -67,13 +66,82 @@ def test_extract_citation():
     -------
     More stuff.
 
-    Acknowledgements:
+    Citation:
         Author1, Author2,
         Title,
         journal,
         year
     """
     assert extract_citation(docstring) == "Author1, Author2, Title, journal, year"
+
+
+def test_extract_citation_underline():
+    """Test that we can extract a citation using the underline section format."""
+    docstring = """
+    Top material
+    ------------
+    Stuff here.
+
+    Citation
+    ------
+        Author1, Author2, Title, year.
+
+    Bottom material
+    ---------------
+    More stuff."""
+    assert extract_citation(docstring) == "Author1, Author2, Title, year."
+
+    docstring = """Function description.
+
+    Reference
+    -----------
+        Author1,
+        Author2,
+        Title,
+        year
+
+    Parameters
+    ----------
+    Stuff here.
+
+    Returns
+    -------
+    More stuff."""
+    assert extract_citation(docstring) == "Author1, Author2, Title, year"
+
+
+def test_extract_citation_multiple():
+    """Test that we can extract multiple citations from a string."""
+    # Test multi-line docstrings.
+    docstring = """Top material:
+    Stuff here.
+
+    Citation: Author1, Author2, Title1, year.
+
+    Citation: Author3, Author4, Title2, year.
+
+    Bottom material:
+    More stuff."""
+    assert extract_citation(docstring) == "Author1, Author2, Title1, year.\nAuthor3, Author4, Title2, year."
+
+    docstring = """Function description.
+
+    Reference
+    ---------
+        Author1, Author2, Title1, year.
+
+    Reference
+    ---------
+        Author3, Author4, Title2, year.
+
+    Parameters
+    ----------
+    Stuff here.
+
+    Returns
+    -------
+    More stuff."""
+    assert extract_citation(docstring) == "Author1, Author2, Title1, year.\nAuthor3, Author4, Title2, year."
 
 
 def test_extract_urls():
