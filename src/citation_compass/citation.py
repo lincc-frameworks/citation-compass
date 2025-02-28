@@ -2,6 +2,7 @@
 
 from functools import wraps
 import logging
+from os import urandom
 import sys
 
 from citation_compass.citation_registry import (
@@ -137,6 +138,33 @@ def cite_object(obj, label=None):
         logging.warning(f"Duplicated citation tag for object: {full_name}")
 
     CITATION_COMPASS_REGISTRY.mark_used(full_name)
+
+
+class CitationContext:
+    """A context manager for tracking citations used within a block of code.
+
+    Parameters
+    ----------
+    name : str, optional
+        The name of the tracker. If None, a random name is generated.
+    """
+
+    def __init__(self, name=None):
+        if name is None:
+            # If no name is given, generate a random one.
+            name = str(urandom(4))
+        self.name = name
+
+    def __enter__(self):
+        CITATION_COMPASS_REGISTRY.start_used_tracker(self.name)
+        return self
+
+    def __exit__(self, *args):
+        CITATION_COMPASS_REGISTRY.stop_used_tracker(self.name)
+
+    def get_citations(self):
+        """Return a list of all citations used within the context manager."""
+        return [str(entry) for entry in CITATION_COMPASS_REGISTRY.get_used_citations(self.name)]
 
 
 def get_all_citations():
