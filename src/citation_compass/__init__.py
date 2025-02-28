@@ -2,6 +2,7 @@ from ._version import __version__  # noqa
 
 from .citation import (
     CiteClass,
+    CitationContext,
     cite_function,
     cite_module,
     cite_object,
@@ -17,6 +18,7 @@ from .import_utils import get_all_imports
 
 __all__ = [
     "CiteClass",
+    "CitationContext",
     "cite_function",
     "cite_module",
     "cite_object",

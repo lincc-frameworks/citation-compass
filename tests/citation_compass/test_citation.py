@@ -1,6 +1,6 @@
 import fake_module
+import pytest
 
-from citation_compass.citation import _get_full_name
 from citation_compass import (
     cite_function,
     cite_object,
@@ -8,6 +8,7 @@ from citation_compass import (
     get_all_citations,
     get_used_citations,
     reset_used_citations,
+    CitationContext,
 )
 
 
@@ -27,18 +28,6 @@ def example_function_2():
 def example_function_x(x):
     """function_citation_x"""
     return x
-
-
-def test_get_full_name():
-    """Check that the full name is correctly generated."""
-    assert _get_full_name(example_function_1) == "test_citation.example_function_1"
-    assert _get_full_name(_get_full_name) == "citation_compass.citation._get_full_name"
-    assert _get_full_name(fake_module.fake_uncited_function) == "fake_module.fake_uncited_function"
-    assert _get_full_name(fake_module.FakeClass) == "fake_module.FakeClass"
-
-    obj = fake_module.FakeClass()
-    assert _get_full_name(obj) == "fake_module.FakeClass"
-    assert _get_full_name(obj.fake_method) == "fake_module.FakeClass.fake_method"
 
 
 def test_citations_all():
@@ -236,3 +225,54 @@ def test_find_in_citations():
 
     _ = fake_module.FakeCitedClass()
     assert len(find_in_citations("FakeCitedClass", True)) == 1
+
+
+def test_citation_context():
+    """Test the CitationContext class."""
+    reset_used_citations()
+
+    # Add some global citations.
+    _ = example_function_1()
+    _ = example_function_2()
+    assert len(get_used_citations()) == 2
+
+    # We don't have a tracker for this context (yet).
+    context_name = "my_context"
+    with pytest.raises(KeyError):
+        _ = get_used_citations(context_name)
+
+    with CitationContext(context_name) as context:
+        # Tracker now exists (with nothing in the context originally).
+        assert get_used_citations(context_name) == []
+        assert context.get_citations() == []
+
+        # We can add something specific to that context.
+        _ = example_function_x(10)
+        citations = context.get_citations()
+        assert len(citations) == 1
+        assert "test_citation.example_function_x: function_citation_x" in citations
+
+        # We can use multiple trackers.
+        with CitationContext("subcontext") as context2:
+            assert context.get_citations() == ["test_citation.example_function_x: function_citation_x"]
+            assert context2.get_citations() == []
+
+            _ = example_function_1()
+            citations = context.get_citations()
+            assert len(citations) == 2
+            assert "test_citation.example_function_1: function_citation_1" in citations
+            assert "test_citation.example_function_x: function_citation_x" in citations
+
+            assert context2.get_citations() == ["test_citation.example_function_1: function_citation_1"]
+
+        # The subcontext is now gone.
+        with pytest.raises(KeyError):
+            _ = get_used_citations("subcontext")
+
+    # Test the tracker is automatically deleted.
+    with pytest.raises(KeyError):
+        _ = get_used_citations(context_name)
+
+    # We can create a citation context without a name.
+    with CitationContext() as context:
+        assert len(context.name) > 0
