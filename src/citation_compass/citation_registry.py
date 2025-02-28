@@ -118,16 +118,23 @@ class CitationRegistry:
     ----------
     all_entries : dict
         A dictionary mapping a annotation's key to its CitationEntry object.
-    used_entries : dict
-        A dictionary mapping the tracker's key to the set of keys it has seen.
-        We permit multiple trackers to be used in order to track citations within
-        context managers.
+    used_entries : set
+        A set of keys for the "used" citations that have been used. This key matches
+        the citation's key in the `all_entries` dictionary.
+    used_trackers : dict
+        A dictionary of additional user-defined trackers for used citations. Each
+        tracker is a set of keys for the citations that have been used.
     """
 
     def __init__(self):
         self.all_entries = {}
+
+        # We include a separate set of all used entries (instead of adding a "global"
+        # entry to used_trackers) to avoid having to avoid having to do a dictionary
+        # lookup for the "global" tracker. This adds some code complexity, but should
+        # be faster in the common case.
+        self.used_entries = set()
         self.used_trackers = {}
-        self.used_trackers["global"] = set()
 
     def __len__(self):
         return len(self.all_entries)
@@ -164,9 +171,16 @@ class CitationRegistry:
         key : str
             The key for the citation.
         """
-        for tracker in self.used_trackers.values():
-            if key not in tracker:
-                tracker.add(key)
+        if key not in self.used_entries:
+            # Check if we already have a global "used" citation for this key
+            # and, if not, add it.
+            self.used_entries.add(key)
+        if len(self.used_trackers) > 0:
+            # We avoid the loop if there are no trackers.  This is slightly
+            # after than iterating over an empty dictionary.
+            for tracker in self.used_trackers.values():
+                if key not in tracker:
+                    tracker.add(key)
 
     def num_trackers(self):
         """Return the number of trackers in use.
@@ -176,7 +190,8 @@ class CitationRegistry:
         int
             The number of trackers.
         """
-        return len(self.used_trackers)
+        # The number of custom trackers, plus the glabl used tracker.
+        return len(self.used_trackers) + 1
 
     def start_used_tracker(self, name):
         """Add another tracker of used citations.
@@ -236,10 +251,12 @@ class CitationRegistry:
             A list of the citations used within the scope of the tracker.
         """
         if tracker_name is None:
-            tracker_name = "global"
-        if tracker_name not in self.used_trackers:
+            tracker = self.used_entries
+        elif tracker_name in self.used_trackers:
+            tracker = self.used_trackers[tracker_name]
+        else:
             raise KeyError(f"Tracker {tracker_name} does not exist.")
-        return [self.all_entries[key] for key in self.used_trackers[tracker_name]]
+        return [self.all_entries[key] for key in tracker]
 
     def reset_used_citations(self, tracker_name=None):
         """Reset the used citations for a tracker.
@@ -251,10 +268,11 @@ class CitationRegistry:
             If None, the global tracker is reset.
         """
         if tracker_name is None:
-            tracker_name = "global"
-        if tracker_name not in self.used_trackers:
+            self.used_entries = set()
+        elif tracker_name in self.used_trackers:
+            self.used_trackers[tracker_name] = set()
+        else:
             raise KeyError(f"Tracker {tracker_name} does not exist.")
-        self.used_trackers[tracker_name] = set()
 
 
 # ----------------------------------------------------------------------------
