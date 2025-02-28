@@ -14,6 +14,36 @@
         "version": "5e895c836d26358495c7e8f857dfb4432cdfbb28ccdd340956dc9d886ee7ddf9",
         "warmup_time": -1
     },
+    "benchmarks.time_call_function_untracked": {
+        "code": "def time_call_function_untracked():\n    \"\"\"Time the cost of calling an untracked function.\"\"\"\n    _ = fake_function2()",
+        "min_run_count": 2,
+        "name": "benchmarks.time_call_function_untracked",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "type": "time",
+        "unit": "seconds",
+        "version": "4411f0c3700c26e2d19e52174c3390144f15310e014543a6632b01c4a67e8f96",
+        "warmup_time": -1
+    },
+    "benchmarks.time_cite_module": {
+        "code": "def time_cite_module():\n    \"\"\"Time the cost of citing a module.\"\"\"\n    cc.cite_module(\"citation_compass\")",
+        "min_run_count": 2,
+        "name": "benchmarks.time_cite_module",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "type": "time",
+        "unit": "seconds",
+        "version": "67135c3ac45fded9119d90663e890569aa56263364c3b026511317a027a9ed08",
+        "warmup_time": -1
+    },
     "benchmarks.time_create_function": {
         "code": "def time_create_function():\n    \"\"\"Time the use of a wrapper with a label.\"\"\"\n\n    @cc.cite_function(\"example\")\n    def test_function():\n        return 1",
         "min_run_count": 2,
@@ -27,6 +57,21 @@
         "type": "time",
         "unit": "seconds",
         "version": "c8927bad6db56cc6cf727cefb4a545d276f37de5aafba7037008a7d15fd7ae9b",
+        "warmup_time": -1
+    },
+    "benchmarks.time_instantiate_class": {
+        "code": "def time_instantiate_class():\n    \"\"\"Time the cost of instantiating a class with a wrapped method.\"\"\"\n    _ = FakeClass()",
+        "min_run_count": 2,
+        "name": "benchmarks.time_instantiate_class",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "type": "time",
+        "unit": "seconds",
+        "version": "ccb64411d2a2e586279c754397281a80e9858328decf6d234d9f2c472fba13a8",
         "warmup_time": -1
     },
     "version": 2
