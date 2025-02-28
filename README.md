@@ -1,5 +1,14 @@
 # citation-compass
 
+[![Template](https://img.shields.io/badge/Template-LINCC%20Frameworks%20Python%20Project%20Template-brightgreen)](https://lincc-ppt.readthedocs.io/en/stable/)
+
+[![PyPI](https://img.shields.io/pypi/v/citation-compass?color=blue&logo=pypi&logoColor=white)](https://pypi.org/project/citation-compass/)
+
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/lincc-frameworks/citation-compass/smoke-test.yml)](https://github.com/lincc-frameworks/citation-compass/actions/workflows/smoke-test.yml)
+[![codecov](https://codecov.io/gh/lincc-frameworks/citation-compass/branch/main/graph/badge.svg)](https://codecov.io/gh/lincc-frameworks/citation-compass)
+[![benchmarks](https://img.shields.io/github/actions/workflow/status/lincc-frameworks/citation-compass/asv-main.yml?label=benchmarks)](https://lincc-frameworks.github.io/citation-compass/)
+
+
 A lightweight package for annotating and extracting citable portions of scientific code from Python modules.
 
 The citation-compass module use a combination of author-specified tags and heuristics to discover citable portions of the code. It is not guaranteed to be complete, but rather serve as a helper to citable code discovery. All users should be careful to confirm they are citing all necessary code.
