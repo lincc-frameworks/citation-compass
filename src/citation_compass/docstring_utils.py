@@ -1,15 +1,14 @@
 """A helper module for searching docstrings for citations."""
 
 _CITATION_HEADER_KEYWORDS = [
-    "acknowledgement",
-    "acknowledgements",
     "citation",
     "citations",
     "reference",
     "references",
 ]
 _CITATION_OTHER_KEYWORDS = [
-    "acknowledge",
+    "acknowledgement",
+    "acknowledgements",
     "arxiv",
     "attribute",
     "attribution",
@@ -49,14 +48,23 @@ def check_for_any_citation_keyword(string):
 
 
 def extract_citation(docstring):
-    """Extracts the citation from a docstring.
+    """Extracts citation(s) from a docstring.
 
     This function assumes that the citation is in the formatted to
     match this package using the "keyword: information" structure at
-    the start of a line.
+    the start of a line or underlined keyword.
 
-    For example, if the docstring contains:
+    For example, if the docstring contains either
+
     "Citation:
+        Author, Title, year.
+
+    Other information..."
+
+    or
+
+    "Citation
+     --------
         Author, Title, year.
 
     Other information..."
@@ -70,7 +78,7 @@ def extract_citation(docstring):
 
     Returns
     -------
-    str or None
+    extracted_citations: str or None
         The extracted citation or None if no citation is found.
     """
     if docstring is None or len(docstring) == 0:
@@ -79,20 +87,65 @@ def extract_citation(docstring):
     all_lines = [line.strip() for line in docstring.split("\n")]
 
     # We search for a line the starts with one of the citation keywords.
+    extracted_citations = ""
+    current_citation = ""
+    block_type = "None"
     for idx, line in enumerate(all_lines):
-        for keyword in _CITATION_SECTION_HEADERS:
-            if line.lower().startswith(keyword):
-                # We have a reference of the form "keyword: information".
-                # Take the rest of what is on that line and all following lines until
-                # we reach a blank line.
-                citation = line[len(keyword) + 1 :]
+        if block_type == "None":
+            # We are not currently in a citation block, so we check if this
+            # line is the start of that block.
+            if (
+                len(line) > 1
+                and line == "-" * len(line)
+                and idx > 0
+                and all_lines[idx - 1].lower() in _CITATION_HEADER_KEYWORDS
+            ):
+                # Check for an underlined section header. Note the section title will
+                # be on the previous line.
+                current_citation = ""
+                block_type = "-"
+            else:
+                # Check if we are in a citation block of the form 'keyword: information'.
+                for keyword in _CITATION_SECTION_HEADERS:
+                    if line.lower().startswith(keyword):
+                        block_type = ":"
+                        current_citation = line[len(keyword) + 1 :]
+                        break
+        else:
+            # We are already in a block, so check for the end of the block.
+            if block_type == "-" and idx < len(all_lines) - 1:
+                # Section type citation blocks end when we hit the next section.
+                next_line = all_lines[idx + 1]
 
-                idx += 1
-                while idx < len(all_lines) and len(all_lines[idx]) > 0:
-                    citation += " " + all_lines[idx]
-                    idx += 1
+                if len(next_line) > 1 and next_line == "-" * len(next_line):
+                    # Check by looking for the underline of the section header. If found,
+                    # do not add the current line because it is the next section title.
+                    block_type = "Done"
+                elif len(line) == 0 and len(next_line) == 0:
+                    # Sections can also end with two blank lines.
+                    block_type = "Done"
+            elif block_type == ":" and len(line) == 0:
+                # End the 'keyword:' block when we hit a blank line.
+                block_type = "Done"
 
-                return citation.strip()
+            if block_type != "Done":
+                # We are still in the block, so add the line to the current citation.
+                current_citation += " " + line
+
+        # We have finished the block, so add the citation to the extracted_citations.
+        # We do this outside the if-else block to ensure we get single line citations.
+        if block_type == "Done" or idx == len(all_lines) - 1:
+            if len(current_citation) > 0:
+                extracted_citations += "\n" + current_citation.strip()
+                current_citation = ""
+
+            # We are no longer in a citation block.
+            block_type = "None"
+
+    # Remove leading and trailing whitespace.
+    extracted_citations = extracted_citations.strip()
+    if len(extracted_citations) > 0:
+        return extracted_citations
     return None
 
 

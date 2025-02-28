@@ -75,6 +75,50 @@ Similarly you can get a list of the citations for only the called functions duri
 citation_list = get_used_citations()
 ```
 
+## Citation Formats
+
+Citation information is pulled from the object's docstring. The extractor looks for sections denoted by keywords 'citation', 'citations', 'reference', or 'references'. These citation sections can be provided in either numpy or Google format. Here are some valid citation notations:
+
+**Underlined section**
+
+Underlined sections look for section delimiters of the form "keyword\n-------" with at least 2 dashes making up the underline. The citation section includes all text until the end of the string or the next section header.
+
+Examples:
+
+```
+Citation
+--------
+    Author, Title, etc.
+```
+
+or
+
+```
+Citations
+---------
+    Author1, Title2, etc.
+    Author2, Title2, etc.
+```
+
+**Colon-specified section**
+
+Colon-specified sections look for section header where a line starts with "keyword:". The citation section includes all text until the end of the string or the next section header, including text following the section header itself.
+
+Example single line citation:
+
+```
+Citation: Author, title, etc.
+```
+
+Example multi-line citation:
+
+```
+Citation:
+    Author,
+    title,
+    etc.
+```
+
 ## Exploring Imports
 
 Since some packages need to be cited when they are used, you can also call
