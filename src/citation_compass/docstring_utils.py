@@ -130,7 +130,7 @@ def extract_citation(docstring):
 
             if block_type != "Done":
                 # We are still in the block, so add the line to the current citation.
-                current_citation += " " + line
+                current_citation += "\n" + line
 
         # We have finished the block, so add the citation to the extracted_citations.
         # We do this outside the if-else block to ensure we get single line citations.

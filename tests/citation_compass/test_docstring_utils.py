@@ -72,7 +72,7 @@ def test_extract_citation_colon():
         journal,
         year
     """
-    assert extract_citation(docstring) == "Author1, Author2, Title, journal, year"
+    assert extract_citation(docstring) == "Author1, Author2,\nTitle,\njournal,\nyear"
 
 
 def test_extract_citation_underline():
@@ -107,7 +107,7 @@ def test_extract_citation_underline():
     Returns
     -------
     More stuff."""
-    assert extract_citation(docstring) == "Author1, Author2, Title, year"
+    assert extract_citation(docstring) == "Author1,\nAuthor2,\nTitle,\nyear"
 
     # Sections end after two blank lines.
     docstring = """Function description.
@@ -129,7 +129,29 @@ def test_extract_citation_underline():
     Returns
     -------
     More stuff."""
-    assert extract_citation(docstring) == "Author1, Author2, Title2, year"
+    assert extract_citation(docstring) == "Author1,\nAuthor2,\nTitle2,\nyear"
+
+    # Formatting perserved for multiple citations in a block.
+    docstring = """Function description.
+
+    References
+    -----------
+    * Author1, Author2, Title1, year1
+    * Author3, Author4, Title2, year2
+    * Author5, Author6, Title3, year3
+
+    Parameters
+    ----------
+    Stuff here.
+
+    Returns
+    -------
+    More stuff."""
+    expected = (
+        "* Author1, Author2, Title1, year1\n* Author3, Author4, Title2, year2\n"
+        "* Author5, Author6, Title3, year3"
+    )
+    assert extract_citation(docstring) == expected
 
 
 def test_extract_citation_multiple():
