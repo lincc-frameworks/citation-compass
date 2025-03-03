@@ -95,9 +95,9 @@ def test_citations_registry():
     assert reg.get_used_citations()[0].key == "key1"
 
     # We can add a custom tracker. Initially it has nothing seen.
-    assert reg.num_trackers() == 1
+    assert reg.num_trackers() == 0
     reg.start_used_tracker("tracker1")
-    assert reg.num_trackers() == 2
+    assert reg.num_trackers() == 1
     assert len(reg.get_used_citations()) == 1
     assert len(reg.get_used_citations("tracker1")) == 0
 
@@ -126,7 +126,7 @@ def test_citations_registry():
     assert used[0].key == "key2"
     assert len(reg.get_used_citations()) == 2  # Global still has 2
 
-    assert reg.num_trackers() == 1
+    assert reg.num_trackers() == 0
     with pytest.raises(KeyError):
         _ = reg.get_used_citations("tracker1")
 

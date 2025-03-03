@@ -183,15 +183,15 @@ class CitationRegistry:
                     tracker.add(key)
 
     def num_trackers(self):
-        """Return the number of trackers in use.
+        """Return the number of custom trackers in use.
 
         Returns
         -------
         int
-            The number of trackers.
+            The number of custom trackers.
         """
-        # The number of custom trackers, plus the glabl used tracker.
-        return len(self.used_trackers) + 1
+        # The number of custom trackers.
+        return len(self.used_trackers)
 
     def start_used_tracker(self, name):
         """Add another tracker of used citations.
