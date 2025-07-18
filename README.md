@@ -100,7 +100,7 @@ Citations
     Author2, Title2, etc.
 ```
 
-Note that some section titles, such as "Citations", may cause Sphinx to throw an "Unexpected section title" error This error can be addressed using sphinx's [napoleon extension](https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html), which provides support for NumPy and Google style docstrings. Add the following information to your project's `conf.py` file:
+Note that some section titles, such as "Citations", may cause Sphinx to throw an "Unexpected section title" error. This error can be addressed using sphinx's [napoleon extension](https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html), which provides support for NumPy and Google style docstrings. Add the following information to your project's `conf.py` file:
 
 ```
 extensions = [..., "sphinx.ext.napoleon"]
