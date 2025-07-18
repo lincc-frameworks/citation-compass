@@ -13,7 +13,7 @@ A lightweight package for annotating and extracting citable portions of scientif
 
 The citation-compass module use a combination of author-specified tags and heuristics to discover citable portions of the code. It is not guaranteed to be complete, but rather serve as a helper to citable code discovery. All users should be careful to confirm they are citing all necessary code.
 
-**Note: This module is currently under development and may still see significant API changes.**
+Citation-compass was originally developed to support LINCC Framework's [TDAstro Package](https://github.com/lincc-frameworks/tdastro). This package includes multiple real-world examples of how to use citation-compass.
 
 
 ## Installing
@@ -98,6 +98,13 @@ Citations
 ---------
     Author1, Title2, etc.
     Author2, Title2, etc.
+```
+
+Note that some section titles, such as "Citations", may cause Sphinx to throw an "Unexpected section title" error This error can be addressed using sphinx's [napoleon extension](https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html), which provides support for NumPy and Google style docstrings. Add the following information to your project's `conf.py` file:
+
+```
+extensions = [..., "sphinx.ext.napoleon"]
+napoleon_custom_sections = ["Citations"]
 ```
 
 **Colon-specified section**
