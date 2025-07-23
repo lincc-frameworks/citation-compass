@@ -20,6 +20,14 @@ def test_check_docstring_for_keyword():
     assert check_for_any_citation_keyword(None) is False
 
 
+def test_check_docstring_for_keyword_custom():
+    """Check that the function correctly identifies docstrings with custom keywords."""
+    assert check_for_any_citation_keyword("This is a docstring.") is False
+    assert check_for_any_citation_keyword("This is a docstring.", keywords=["docstring"]) is True
+    assert check_for_any_citation_keyword("This is a citation.") is True
+    assert check_for_any_citation_keyword("This is a citation.", keywords=["nonexistent"]) is False
+
+
 def test_extract_citation_colon():
     """Test that we can extract a citation using the 'keyword:' format."""
     # Check an empty docstring.
