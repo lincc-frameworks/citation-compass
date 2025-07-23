@@ -9,8 +9,9 @@ _CITATION_HEADER_KEYWORDS = [
 _CITATION_OTHER_KEYWORDS = [
     "acknowledgement",
     "acknowledgements",
+    "acknowledgment",
+    "acknowledgments",
     "arxiv",
-    "attribute",
     "attribution",
     "bibliography",
     "cite",
@@ -20,7 +21,7 @@ _CITATION_SECTION_HEADERS = set([f"{keyword}:" for keyword in _CITATION_HEADER_K
 _CITATION_ALL_KEYWORDS = _CITATION_HEADER_KEYWORDS + _CITATION_OTHER_KEYWORDS
 
 
-def check_for_any_citation_keyword(string):
+def check_for_any_citation_keyword(string, keywords=None):
     """Checks a string for any of the keywords that indicate a citation,
     which can include the words in the middle of a sentence. As such, this approach
     is a heuristic and does not require the citation to be in a specific format. It
@@ -31,6 +32,8 @@ def check_for_any_citation_keyword(string):
     ----------
     string : str
         The string to check.
+    keywords : list of str, optional
+        A list of keywords to check for. If None, the default keywords are used.
 
     Returns
     -------
@@ -40,8 +43,11 @@ def check_for_any_citation_keyword(string):
     if string is None or len(string) == 0:
         return False
 
+    if keywords is None:
+        keywords = _CITATION_ALL_KEYWORDS
+
     for line in [line.lower() for line in string.split("\n")]:
-        for keyword in _CITATION_ALL_KEYWORDS:
+        for keyword in keywords:
             if keyword in line:
                 return True
     return False
