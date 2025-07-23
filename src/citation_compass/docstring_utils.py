@@ -9,6 +9,8 @@ _CITATION_HEADER_KEYWORDS = [
 _CITATION_OTHER_KEYWORDS = [
     "acknowledgement",
     "acknowledgements",
+    "acknowledgment",
+    "acknowledgments",
     "arxiv",
     "attribution",
     "bibliography",
