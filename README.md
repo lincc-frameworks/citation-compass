@@ -2,7 +2,7 @@
 
 [![Template](https://img.shields.io/badge/Template-LINCC%20Frameworks%20Python%20Project%20Template-brightgreen)](https://lincc-ppt.readthedocs.io/en/stable/)
 
-[![PyPI](https://img.shields.io/pypi/v/citation-compass?color=blue&logo=pypi&logoColor=white)](https://pypi.org/project/citation-compass/)
+[![PyPI](https://img.shields.io/pypi/v/citation-compass?color=blue&logo=pypi&logoColor=white)](https://pypi.org/project/citation-compass/) [![Conda Version](https://img.shields.io/conda/vn/conda-forge/citation-compass.svg)](https://anaconda.org/conda-forge/citation-compass)
 
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/lincc-frameworks/citation-compass/smoke-test.yml)](https://github.com/lincc-frameworks/citation-compass/actions/workflows/smoke-test.yml)
 [![codecov](https://codecov.io/gh/lincc-frameworks/citation-compass/branch/main/graph/badge.svg)](https://codecov.io/gh/lincc-frameworks/citation-compass)
@@ -18,10 +18,16 @@ Citation-compass was originally developed to support LINCC Framework's [TDAstro 
 
 ## Installing
 
-Citation-compass can be installed from pypi with:
+Citation-compass can be installed from PyPI with:
 
 ```
 pip install citation-compass
+```
+
+And from conda-forge with:
+
+```
+conda install conda-forge::citation-compass
 ```
 
 ## Getting Started
