@@ -61,13 +61,62 @@ def test_citations_entry():
     assert entry.citation == "function_citation_1"
 
 
+def test_citations_entry_extend():
+    """Check that we can extend a citation entry and entries with multiple entries behave as expected."""
+    entry1 = CitationEntry("key", "citation", "label")
+    assert entry1.key == "key"
+    assert entry1.citation == "citation"
+    assert entry1.num_citations == 1
+
+    entry2 = CitationEntry("key", "other citation", "label")
+    assert entry2.key == "key"
+    assert entry2.citation == "other citation"
+    assert entry2.num_citations == 1
+
+    entry1.extend(entry2)
+    assert entry1.key == "key"
+    assert entry1.citation == "citation\nother citation"
+    assert entry1.num_citations == 2
+    assert "citation" in entry1
+    assert "other citation" in entry1
+    assert "missing citation" not in entry1
+
+    # Adding a repeat of the citation text does not change anything.
+    entry2b = CitationEntry("key", "other citation")
+    entry1.extend(entry2b)
+    assert entry1.key == "key"
+    assert entry1.citation == "citation\nother citation"
+    assert entry1.num_citations == 2
+    assert "citation" in entry1
+    assert "other citation" in entry1
+    assert "missing citation" not in entry1
+
+    entry3 = CitationEntry("key", "http://example.com")
+    assert entry3.citation == "http://example.com"
+    assert entry3.urls == ["http://example.com"]
+
+    entry3.extend(entry1)
+    assert entry3.num_citations == 3
+    assert entry3.citation == "http://example.com\ncitation\nother citation"
+    assert entry3.urls == ["http://example.com"]
+    assert "citation" in entry3
+    assert "other citation" in entry3
+    assert "missing citation" not in entry3
+    assert "http://example.com" in entry3
+
+    # We fail if we try to extend an entry with a different key.
+    with pytest.raises(ValueError):
+        entry4 = CitationEntry("other_key", "citation")
+        entry1.extend(entry4)
+
+
 def test_citations_registry():
     """Test that we can create and query a citation registry."""
     reg = CitationRegistry()
     assert len(reg) == 0
 
     # We can add a citation entry as a CitationEntry object.
-    reg.add("key1", CitationEntry("key1", "citation1"))
+    reg.add(CitationEntry("key1", "citation1"))
     assert len(reg) == 1
     assert "key1" in reg
     assert reg["key1"].citation == "citation1"
@@ -75,17 +124,26 @@ def test_citations_registry():
     assert reg.get_all_citations()[0].key == "key1"
 
     # We can add a citation entry as a citation string.
-    reg.add("key2", "citation2")
+    reg.add(CitationEntry("key2", "citation2"))
     assert len(reg) == 2
     assert "key2" in reg
     assert reg["key2"].citation == "citation2"
     assert len(reg.get_all_citations()) == 2
 
+    # If we re-add a key, it appends the citations.
+    reg.add(CitationEntry("key2", "citation2.b"))
+    assert len(reg) == 2
+    assert "key2" in reg
+    assert reg["key2"].citation == "citation2\ncitation2.b"
+    assert len(reg.get_all_citations()) == 2
+
     # We can add a citation entry from an object.
-    reg.add("key3", example_function_1)
+    entry = CitationEntry.from_object(example_function_1)
+    assert entry.key == "test_citation_registry.example_function_1"
+    reg.add(entry)
     assert len(reg) == 3
-    assert "key3" in reg
-    assert reg["key3"].citation == "function_citation_1"
+    assert entry.key in reg
+    assert reg[entry.key].citation == "function_citation_1"
     assert len(reg.get_all_citations()) == 3
 
     # We can mark an entry as used.

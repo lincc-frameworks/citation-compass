@@ -1,12 +1,10 @@
 """A helper module to collect citations from a software package."""
 
 from functools import wraps
-import logging
 from os import urandom
 import sys
 
 from citation_compass.citation_registry import (
-    get_object_full_name,
     CitationEntry,
     CITATION_COMPASS_REGISTRY,
 )
@@ -24,7 +22,8 @@ def cite_inline(name, citation):
     citation : str
         The citation text.
     """
-    CITATION_COMPASS_REGISTRY.add(name, citation)
+    entry = CitationEntry(name, citation)
+    CITATION_COMPASS_REGISTRY.add(entry)
     CITATION_COMPASS_REGISTRY.mark_used(name)
 
 
@@ -47,7 +46,7 @@ def cite_module(name, citation=None):
                 citation = module.__doc__
 
     entry = CitationEntry(name, citation)
-    CITATION_COMPASS_REGISTRY.add(name, entry)
+    CITATION_COMPASS_REGISTRY.add(entry)
     CITATION_COMPASS_REGISTRY.mark_used(name)
 
 
@@ -58,15 +57,9 @@ class CiteClass:
         pass
 
     def __init_subclass__(cls):
-        # Add the class's full name
-        full_name = get_object_full_name(cls)
-        cls._citation_compass_name = full_name
-
-        # Save the citation as ALL when it is first defined.
-        if full_name not in CITATION_COMPASS_REGISTRY:
-            CITATION_COMPASS_REGISTRY.add(full_name, CitationEntry.from_object(cls))
-        else:
-            logging.warning(f"Duplicated citation tag for class: {full_name}")
+        entry = CitationEntry.from_object(cls)
+        cls._citation_compass_name = entry.key
+        CITATION_COMPASS_REGISTRY.add(entry)
 
         # Wrap the constructor so the class is marked used when
         # the first object is instantiated.
@@ -105,14 +98,8 @@ def cite_function(label=None, track_used=True):
     use_label = label if not callable(label) else None
 
     def decorator(func):
-        full_name = get_object_full_name(func)
-
-        # Save the citation as ALL when it is first defined.
-        if full_name not in CITATION_COMPASS_REGISTRY:
-            citation = CitationEntry.from_object(func, label=use_label)
-            CITATION_COMPASS_REGISTRY.add(full_name, citation)
-        else:
-            logging.warning(f"Duplicated citation tag for function: {full_name}")
+        entry = CitationEntry.from_object(func, label=use_label)
+        CITATION_COMPASS_REGISTRY.add(entry)
 
         # Wrap the function so it is marked as USED when it is called.
         if track_used:
@@ -120,14 +107,14 @@ def cite_function(label=None, track_used=True):
             @wraps(func)
             def fun_wrapper(*args, **kwargs):
                 # Save the citation as USED when it is first called.
-                CITATION_COMPASS_REGISTRY.mark_used(full_name)
+                CITATION_COMPASS_REGISTRY.mark_used(entry.key)
                 return func(*args, **kwargs)
         else:
             # We do not wrap the function, but just return the original function.
             fun_wrapper = func
 
             # We mark as used be default so the citation does not get dropped.
-            CITATION_COMPASS_REGISTRY.mark_used(full_name)
+            CITATION_COMPASS_REGISTRY.mark_used(entry.key)
 
         return fun_wrapper
 
@@ -146,13 +133,9 @@ def cite_object(obj, label=None):
     label : str, optional
         The (optional) user-defined label for the citation.
     """
-    full_name = get_object_full_name(obj)
-    if full_name not in CITATION_COMPASS_REGISTRY:
-        CITATION_COMPASS_REGISTRY.add(full_name, CitationEntry.from_object(obj, label=label))
-    else:
-        logging.warning(f"Duplicated citation tag for object: {full_name}")
-
-    CITATION_COMPASS_REGISTRY.mark_used(full_name)
+    entry = CitationEntry.from_object(obj, label=label)
+    CITATION_COMPASS_REGISTRY.add(entry)
+    CITATION_COMPASS_REGISTRY.mark_used(entry.key)
 
 
 class CitationContext:

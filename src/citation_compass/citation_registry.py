@@ -45,8 +45,10 @@ class CitationEntry:
     ----------
     key : str
         The name of the module, function, or other aspect where the citation is needed.
-    citation : str, optional
-        The citation string.
+    citation: str
+        The citation string (joined if there are multiple citations).
+    _individual_citations : set of str
+        The citation strings (unordered).
     label : str, optional
         The (optional) user-defined label for the citation.
     urls : list of str
@@ -64,6 +66,7 @@ class CitationEntry:
             else:
                 self.citation = "No citation provided."
 
+        self._individual_citations = set([self.citation])
         self.urls = extract_urls(self.citation)
 
     def __hash__(self):
@@ -74,6 +77,34 @@ class CitationEntry:
 
     def __repr__(self):
         return f"{self.key}:\n{self.citation}"
+
+    def __contains__(self, citation):
+        return citation in self._individual_citations
+
+    @property
+    def num_citations(self):
+        """Return the number of individual citations in this entry."""
+        return len(self._individual_citations)
+
+    def extend(self, other_entry):
+        """Extend the CitationEntry with another CitationEntry.
+
+        Parameters
+        ----------
+        other_entry : CitationEntry
+            The other citation entry to add.
+        """
+        if other_entry is None or other_entry.key != self.key:
+            raise ValueError("Can only extend a CitationEntry with another entry with the same key.")
+
+        # Do not add exact duplicates.
+        if other_entry.citation in self._individual_citations:
+            return
+
+        # Append the new citation information.
+        self.citation += "\n" + other_entry.citation
+        self._individual_citations |= other_entry._individual_citations
+        self.urls.extend(other_entry.urls)
 
     @classmethod
     def from_object(cls, obj, label=None):
@@ -145,23 +176,23 @@ class CitationRegistry:
     def __getitem__(self, key):
         return self.all_entries[key]
 
-    def add(self, key, citation):
-        """Add a citation to the registry.
+    def add(self, entry):
+        """Add a citation entry to the registry.
+
+        If the key is already in the registry, this will concatenate the new citation
+        information onto the existing entry.
 
         Parameters
         ----------
-        key : str
-            The key for the citation.
-        citation : CitationEntry, str, or object
+        entry : CitationEntry
             The citation entry to add.
         """
-        if key not in self.all_entries:
-            if isinstance(citation, CitationEntry):
-                self.all_entries[key] = citation
-            elif isinstance(citation, str):
-                self.all_entries[key] = CitationEntry(key, citation)
-            else:
-                self.all_entries[key] = CitationEntry.from_object(citation)
+        # If the key is not already in the registry, we just add it. Otherwise we try to merge
+        # the new entry with the existing one.
+        if entry.key not in self.all_entries:
+            self.all_entries[entry.key] = entry
+        else:
+            self.all_entries[entry.key].extend(entry)
 
     def mark_used(self, key):
         """Mark a citation as used.
