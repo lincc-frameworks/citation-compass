@@ -199,9 +199,11 @@ def test_citations_used():
     used_citations.append("fake_module.InheritedFakeClass: A 3rd fake class for testing.")
     assert sorted(get_used_citations()) == sorted(used_citations)
 
-    # Test adding a manual citation for an object.
-    cite_inline("test_citation", "Citation string")
-    assert "test_citation: Citation string" in get_used_citations()
+    # Test adding a manual citation for a block of code.
+    cite_inline("test_citation_manual", "Citation string")
+    assert "test_citation_manual: Citation string" in get_used_citations()
+
+    # If we readd a seen citation key, it gets appended to the end of the list.
 
     # We can reset the list of used citation functions.
     reset_used_citations()
