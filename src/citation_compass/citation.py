@@ -13,6 +13,21 @@ from citation_compass.citation_registry import (
 from citation_compass.docstring_utils import extract_citation
 
 
+def cite_inline(name, citation):
+    """Add a manual citation entry. This is used when the citation is specific
+    to a block of code (e.g. an if-else statement) instead of a function or class.
+
+    Parameters
+    ----------
+    name : str
+        The name of the citation entry. This should be unique key.
+    citation : str
+        The citation text.
+    """
+    CITATION_COMPASS_REGISTRY.add(name, citation)
+    CITATION_COMPASS_REGISTRY.mark_used(name)
+
+
 def cite_module(name, citation=None):
     """Add a citation to a entire module.
 
