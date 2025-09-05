@@ -44,6 +44,8 @@ The citation-compass module provides mechanisms for code authors to annotate por
 
 * **objects** - An author can cite an instantiated object using the `cite_object(obj)` function. Note that we do not expect this to be a typical use case. Most users will want to use a class-level citation instead. However citing an object can be used with objects from external packages. Cited objects will be referenced by the object's class information. Cited objects are added to both the all citations and used citations list as soon as the `cite_object` function is called.
 
+* **inline** - An author can manually insert a citation at any line of the code using `cite_inline(name, citation_text)`. The name must be a unique tag for this citation and the citation text can be anything the author wants to display to the end user.
+
 ### Example: Citing a Function
 
 Users can annotate a function using the `@cite_function` decorator. This will add an entry mapping the function's identifier to citation information, which may include the docstring, a user defined label, or extracted information.

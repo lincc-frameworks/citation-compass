@@ -3,6 +3,7 @@ import pytest
 
 from citation_compass import (
     cite_function,
+    cite_inline,
     cite_object,
     find_in_citations,
     get_all_citations,
@@ -111,6 +112,10 @@ def test_citations_all():
     )
     assert sorted(get_all_citations()) == sorted(known_citations)
 
+    # Test adding a manual citation for an object.
+    cite_inline("test_citation", "Citation string")
+    assert "test_citation: Citation string" in get_all_citations()
+
 
 def test_citations_used():
     """Check that the used citations are registered as they are used."""
@@ -193,6 +198,10 @@ def test_citations_used():
     _ = fake_module.InheritedFakeClass()
     used_citations.append("fake_module.InheritedFakeClass: A 3rd fake class for testing.")
     assert sorted(get_used_citations()) == sorted(used_citations)
+
+    # Test adding a manual citation for an object.
+    cite_inline("test_citation", "Citation string")
+    assert "test_citation: Citation string" in get_used_citations()
 
     # We can reset the list of used citation functions.
     reset_used_citations()
