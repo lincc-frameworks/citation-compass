@@ -13,7 +13,7 @@ A lightweight package for annotating and extracting citable portions of scientif
 
 The citation-compass module use a combination of author-specified tags and heuristics to discover citable portions of the code. It is not guaranteed to be complete, but rather serve as a helper to citable code discovery. All users should be careful to confirm they are citing all necessary code.
 
-Citation-compass was originally developed to support LINCC Framework's [TDAstro Package](https://github.com/lincc-frameworks/tdastro). This package includes multiple real-world examples of how to use citation-compass.
+Citation-compass was originally developed to support LINCC Framework's [LightCurveLynx Package](https://github.com/lincc-frameworks/lightcurvelynx). This package includes multiple real-world examples of how to use citation-compass.
 
 
 ## Installing
