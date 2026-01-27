@@ -32,3 +32,5 @@ __all__ = [
     "print_used_citations",
     "reset_used_citations",
 ]
+
+__all__ = ["__version__"]

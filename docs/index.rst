@@ -6,6 +6,8 @@
 Welcome to citation_compass's documentation!
 ========================================================================================
 
+Annotate and extract citable portions of scientific code from Python modules
+
 Dev Guide - Getting Started
 ---------------------------
 
@@ -16,7 +18,7 @@ create and activate a new environment.
 
 .. code-block:: console
 
-   >> conda create env -n <env_name> python=3.11
+   >> conda create env -n <env_name> python=3.12
    >> conda activate <env_name>
 
 

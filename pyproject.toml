@@ -1,14 +1,15 @@
 
 [project]
 name = "citation-compass"
-license = {file = "LICENSE"}
+license = "MIT"
+license-files = ["LICENSE"]
 readme = "README.md"
 authors = [
     { name = "LINCC Frameworks", email = "lincc-frameworks-team@lists.lsst.org" }
 ]
+description = "Annotate and extract citable portions of scientific code from Python modules"
 classifiers = [
     "Development Status :: 4 - Beta",
-    "License :: OSI Approved :: MIT License",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Operating System :: OS Independent",
@@ -46,20 +47,13 @@ write_to = "src/citation_compass/_version.py"
 [tool.pytest.ini_options]
 testpaths = [
     "tests",
+    "src",
+    "docs",
 ]
-
-[tool.black]
-line-length = 110
-target-version = ["py310"]
-
-[tool.isort]
-profile = "black"
-line_length = 110
+addopts = "--doctest-modules --doctest-glob=*.rst"
 
 [tool.ruff]
 line-length = 110
-target-version = "py310"
-
 [tool.ruff.lint]
 select = [
     # pycodestyle
@@ -91,7 +85,6 @@ select = [
     # Numpy v2.0 compatibility
     "NPY201",
 ]
-
 ignore = [
     "UP006", # Allow non standard library generics in type hints
     "UP007", # Allow Union in type hints
@@ -102,6 +95,7 @@ ignore = [
     "UP028", # Allow yield in for loop
     "I001", # Allow custom isort configuration
 ]
+
 
 [tool.coverage.run]
 omit=["src/citation_compass/_version.py"]
