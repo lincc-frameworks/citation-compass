@@ -1,5 +1,6 @@
 import fake_module
 import pytest
+import types
 
 from citation_compass import (
     cite_function,
@@ -31,6 +32,34 @@ def example_function_x(x):
     return x
 
 
+class _FakeTestingClass:
+    """A fake class for testing."""
+
+    def __init__(self, data=1):
+        self.data = data
+
+    @classmethod
+    @cite_function
+    def fake_class_classmethod(cls):
+        """A fake classmethod for testing."""
+        return cls(data=1)
+
+    @staticmethod
+    @cite_function
+    def fake_class_staticmethod():
+        """A fake staticmethod for testing."""
+        return 0
+
+    @cite_function
+    def fake_class_normal_method(self):
+        """A fake normal class method for testing."""
+        return self.data
+
+    def uncited_method(self):
+        """A method that is not cited."""
+        return self.data
+
+
 def test_citations_all():
     """Check that all the citations are registered."""
     known_citations = [
@@ -38,6 +67,9 @@ def test_citations_all():
         "test_citation.example_function_1: function_citation_1",
         "test_citation.example_function_2: function_citation_2",
         "test_citation.example_function_x: function_citation_x",
+        "test_citation._FakeTestingClass.fake_class_classmethod: A fake classmethod for testing.",
+        "test_citation._FakeTestingClass.fake_class_staticmethod: A fake staticmethod for testing.",
+        "test_citation._FakeTestingClass.fake_class_normal_method: A fake normal class method for testing.",
         # The items defined in fake_module.
         "fake_module: CitationCompass, 2025.",
         "fake_module.FakeClass.fake_method: A fake class method for testing.",
@@ -60,8 +92,8 @@ def test_citations_all():
     obj = fake_module.FakeCitedClass()
     assert isinstance(obj, fake_module.FakeCitedClass)
 
-    # A citation with no docstring, but a label.
-    @cite_function("function_citation_3")
+    # A citation with no docstring, but a manual label.
+    @cite_function(label="function_citation_3")
     def example_function_3():
         return 3
 
@@ -236,6 +268,50 @@ def test_find_in_citations():
 
     _ = fake_module.FakeCitedClass()
     assert len(find_in_citations("FakeCitedClass", True)) == 1
+
+
+def test_functions_in_class():
+    """Test that we correctly handle methods in a class including static and class methods."""
+    obj = _FakeTestingClass(data=5)
+
+    # Nothing is used.
+    assert len(find_in_citations("fake_class_normal_method", True)) == 0
+    assert len(find_in_citations("fake_class_staticmethod", True)) == 0
+    assert len(find_in_citations("fake_class_classmethod", True)) == 0
+
+    # All the functions are usable.
+    assert obj.fake_class_normal_method() == 5
+    assert obj.fake_class_staticmethod() == 0
+
+    obj2 = obj.fake_class_classmethod()
+    assert isinstance(obj2, _FakeTestingClass)
+    assert obj2.data == 1
+
+    # Everything is now cited.
+    assert len(find_in_citations("fake_class_normal_method", True)) == 1
+    assert len(find_in_citations("fake_class_staticmethod", True)) == 1
+    assert len(find_in_citations("fake_class_classmethod", True)) == 1
+
+    # We preserve the types of each method when called from the class. The class method
+    # static method should be those types.
+    assert isinstance(_FakeTestingClass.__dict__["fake_class_normal_method"], types.FunctionType)
+    assert isinstance(_FakeTestingClass.__dict__["fake_class_staticmethod"], staticmethod)
+    assert isinstance(_FakeTestingClass.__dict__["fake_class_classmethod"], classmethod)
+
+    # Check the types when accessing an instance.
+    assert isinstance(obj.fake_class_normal_method, types.MethodType)
+    assert isinstance(obj.fake_class_staticmethod, types.FunctionType)
+    assert isinstance(obj.fake_class_classmethod, types.MethodType)
+
+    # We preserve the names of the methods.
+    assert obj.fake_class_classmethod.__name__ == "fake_class_classmethod"
+    assert obj.fake_class_staticmethod.__name__ == "fake_class_staticmethod"
+    assert obj.fake_class_normal_method.__name__ == "fake_class_normal_method"
+
+    # We preserve the docstring of the methods.
+    assert obj.fake_class_classmethod.__doc__ == "A fake classmethod for testing."
+    assert obj.fake_class_staticmethod.__doc__ == "A fake staticmethod for testing."
+    assert obj.fake_class_normal_method.__doc__ == "A fake normal class method for testing."
 
 
 def test_citation_context():
