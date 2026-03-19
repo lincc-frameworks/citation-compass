@@ -6,13 +6,13 @@ https://asv.readthedocs.io/en/stable/writing_benchmarks.html."""
 import citation_compass as cc
 
 
-@cc.cite_function("fake")
+@cc.cite_function(label="fake")
 def fake_function():
     """A fake function to demonstrate the use of the citation_compass package."""
     return 1
 
 
-@cc.cite_function("fake", track_used=False)
+@cc.cite_function(label="fake", track_used=False)
 def fake_function2():
     """A fake function to demonstrate the use of the citation_compass package."""
     return 1
@@ -28,7 +28,7 @@ class FakeClass(cc.CiteClass):
 def time_create_function():
     """Time the use of a wrapper with a label."""
 
-    @cc.cite_function("example")
+    @cc.cite_function(label="example")
     def test_function():
         return 1
 

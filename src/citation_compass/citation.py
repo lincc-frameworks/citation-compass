@@ -3,6 +3,7 @@
 from functools import wraps
 from os import urandom
 import sys
+import types
 
 from citation_compass.citation_registry import (
     CitationEntry,
@@ -74,14 +75,18 @@ class CiteClass:
         cls.__init__ = init_wrapper
 
 
-def cite_function(label=None, track_used=True):
+def cite_function(callable=None, *, label=None, track_used=True):
     """A function wrapper for adding a citation to a function or
     class method.
 
     Parameters
     ----------
+    callable : function or method, optional
+        The function or method to add a citation to. This is automatically passed as
+        the first argument when using the decorator without parentheses.
     label : str, optional
-        The (optional) user-defined label for the citation.
+        The (optional) user-defined label for the citation. If not provided,
+        the label will be auto-extracted from the function's docstring.
     track_used : bool
         If True, the function will be marked as used when it is called.
         This adds a small amount of overhead to each function call.
@@ -92,35 +97,47 @@ def cite_function(label=None, track_used=True):
     function
         The wrapped function or method.
     """
-    # If the label is callable, there were no parentheses on the
-    # dectorator and it passed in the function instead. So use None
-    # as the label.
-    use_label = label if not callable(label) else None
+    # This decorator is designed as a two-layer decorator. The first layer handles the (optional)
+    # arguments. The second handles the actual function wrapping.
 
-    def decorator(func):
-        entry = CitationEntry.from_object(func, label=use_label)
+    def _inner_decorator(callable):
+        # The inner decorator is used to set the "all" citations entry and handle
+        # the correct return types when wrapping the function.
+
+        # Add the function to the registry (for the "all" citations).
+        entry = CitationEntry.from_object(callable, label=label)
         CITATION_COMPASS_REGISTRY.add(entry)
 
-        # Wrap the function so it is marked as USED when it is called.
-        if track_used:
-
-            @wraps(func)
-            def fun_wrapper(*args, **kwargs):
-                # Save the citation as USED when it is first called.
-                CITATION_COMPASS_REGISTRY.mark_used(entry.key)
-                return func(*args, **kwargs)
-        else:
-            # We do not wrap the function, but just return the original function.
-            fun_wrapper = func
-
-            # We mark as used be default so the citation does not get dropped.
+        # If we are not tracking when the function is used, we don't need to wrap it.
+        # We can just return the original callable.
+        if not track_used:
+            # We mark as used by default so the citation does not get dropped.
             CITATION_COMPASS_REGISTRY.mark_used(entry.key)
+            return callable
 
-        return fun_wrapper
+        # If the callable is a classmethod or method, we need to get the function that has
+        # the self or cls argument.
+        func = callable.__func__ if isinstance(callable, (classmethod, types.MethodType)) else callable
 
-    if callable(label):
-        return decorator(label)
-    return decorator
+        # Define the actual wrapper for the callable we passed in. This wrapper function will
+        # be called each time the internal function is called.
+        @wraps(func)
+        def citation_wrapper(*args, **kwargs):
+            # Save the citation as USED when it is first called.
+            CITATION_COMPASS_REGISTRY.mark_used(entry.key)
+            return func(*args, **kwargs)
+
+        # We cast the wrapped function as the correct type.
+        if isinstance(callable, classmethod):
+            return classmethod(citation_wrapper)
+        elif isinstance(callable, staticmethod):
+            return staticmethod(citation_wrapper)
+        elif isinstance(callable, types.MethodType):
+            return types.MethodType(citation_wrapper, callable.__self__)
+        return citation_wrapper
+
+    # Handle the optional parentheses in the decorator.
+    return _inner_decorator if callable is None else _inner_decorator(callable)
 
 
 def cite_object(obj, label=None):
