@@ -45,7 +45,7 @@
         "warmup_time": -1
     },
     "benchmarks.time_create_function": {
-        "code": "def time_create_function():\n    \"\"\"Time the use of a wrapper with a label.\"\"\"\n\n    @cc.cite_function(\"example\")\n    def test_function():\n        return 1",
+        "code": "def time_create_function():\n    \"\"\"Time the use of a wrapper with a label.\"\"\"\n\n    @cc.cite_function(label=\"example\")\n    def test_function():\n        return 1",
         "min_run_count": 2,
         "name": "benchmarks.time_create_function",
         "number": 0,
@@ -56,7 +56,7 @@
         "sample_time": 0.01,
         "type": "time",
         "unit": "seconds",
-        "version": "c8927bad6db56cc6cf727cefb4a545d276f37de5aafba7037008a7d15fd7ae9b",
+        "version": "2cc99c760b1caca765d70fca50ac590aac0d4bcd28b23999b226b1fa902d7430",
         "warmup_time": -1
     },
     "benchmarks.time_instantiate_class": {
