@@ -16,7 +16,7 @@ classifiers = [
     "Programming Language :: Python",
 ]
 dynamic = ["version"]
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 dependencies = [
 ]
 
@@ -51,6 +51,7 @@ testpaths = [
     "docs",
 ]
 addopts = "--doctest-modules --doctest-glob=*.rst"
+log_cli_level = "INFO"
 
 [tool.ruff]
 line-length = 110
@@ -84,7 +85,7 @@ select = [
     "D419",
     # Numpy v2.0 compatibility
     "NPY201",
-]
+    ]
 ignore = [
     "UP006", # Allow non standard library generics in type hints
     "UP007", # Allow Union in type hints
@@ -93,7 +94,6 @@ ignore = [
     "SIM117", # Allow nested with
     "UP015", # Allow redundant open parameters
     "UP028", # Allow yield in for loop
-    "I001", # Allow custom isort configuration
 ]
 
 
