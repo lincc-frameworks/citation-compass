@@ -12,7 +12,7 @@ permissions: {}
 
 env:
   PYTHON_VERSION: "3.12"
-  ASV_VERSION: "0.6.5"
+  ASV_VERSION: "0.6.6"
   WORKING_DIR: ${{github.workspace}}/benchmarks
   NIGHTLY_HASH_FILE: nightly-hash
 
