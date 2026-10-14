@@ -51,3 +51,4 @@ benchmarks/                       ASV performance benchmarks
 - **File naming:** `tests/citation_compass/<SUBDIR>/test_<name>.py`, mirroring the `src/citation_compass/` layout.
 - **Fixtures:** defined in `tests/conftest.py`. Use existing fixtures, do not duplicate test data.
 - Default test run: `python -m pytest`
+
