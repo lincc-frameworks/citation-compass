@@ -1,7 +1,7 @@
 # Benchmarks
 
 This directory contains files that will be run via continuous testing either
-nightly or after committing code to a pull request. 
+nightly or after committing code to a pull request.
 
 The runtime and/or memory usage of the functions defined in these files will be
 tracked and reported to give you a sense of the overall performance of your code.

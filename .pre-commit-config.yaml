@@ -1,7 +1,7 @@
 
 repos:
     # Compare the local template version to the latest remote template version
-    # This hook should always pass. It will print a message if the local version 
+    # This hook should always pass. It will print a message if the local version
     # is out of date.
   - repo: https://github.com/lincc-frameworks/pre-commit-hooks
     rev: 439dda8bd784f4aa721851ecec03877df286f6b5  # v0.2.2
@@ -65,7 +65,7 @@ repos:
     rev: 44b5042edab9382aba712eed4f9c7bab7a3d6a3e  # v0.17.0
     hooks:
       - id: ruff
-        name: Lint code using ruff; sort and organize imports 
+        name: Lint code using ruff; sort and organize imports
         types_or: [ python, pyi ]
         args: ["--fix"]
   - repo: https://github.com/astral-sh/ruff-pre-commit
