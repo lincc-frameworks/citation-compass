@@ -1,6 +1,6 @@
 # Changes here will be overwritten by Copier
-_commit: v2.3.0
-_src_path: gh:lincc-frameworks/python-project-template
+_commit: v2.3.0-6-g41fd27c
+_src_path: ../python-project-template
 author_email: lincc-frameworks-team@lists.lsst.org
 author_name: LINCC Frameworks
 create_example_module: false
